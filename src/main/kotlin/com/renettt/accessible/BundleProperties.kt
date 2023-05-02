@@ -1,13 +1,13 @@
-package com.github.renettt.accessibleplugin
+package com.renettt.accessible
 
 import com.intellij.DynamicBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
 @NonNls
-private const val BUNDLE = "messages.MyBundle"
+private const val BUNDLE = "messages.BundleProperties"
 
-object MyBundle : DynamicBundle(BUNDLE) {
+object BundleProperties : DynamicBundle(BUNDLE) {
 
     @Suppress("SpreadOperator")
     @JvmStatic

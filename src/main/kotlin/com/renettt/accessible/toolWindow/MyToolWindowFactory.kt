@@ -1,4 +1,4 @@
-package com.github.renettt.accessibleplugin.toolWindow
+package com.renettt.accessible.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -8,8 +8,8 @@ import com.intellij.openapi.wm.ToolWindowFactory
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
-import com.github.renettt.accessibleplugin.MyBundle
-import com.github.renettt.accessibleplugin.services.MyProjectService
+import com.renettt.accessible.BundleProperties
+import com.renettt.accessible.services.MyProjectService
 import javax.swing.JButton
 
 
@@ -34,12 +34,12 @@ class MyToolWindowFactory : ToolWindowFactory {
         private val service = toolWindow.project.service<MyProjectService>()
 
         fun getContent() = JBPanel<JBPanel<*>>().apply {
-            val label = JBLabel(MyBundle.message("randomLabel", "?"))
+            val label = JBLabel(BundleProperties.message("randomLabel", "?"))
 
             add(label)
-            add(JButton(MyBundle.message("shuffle")).apply {
+            add(JButton(BundleProperties.message("shuffle")).apply {
                 addActionListener {
-                    label.text = MyBundle.message("randomLabel", service.getRandomNumber())
+                    label.text = BundleProperties.message("randomLabel", service.getRandomNumber())
                 }
             })
         }

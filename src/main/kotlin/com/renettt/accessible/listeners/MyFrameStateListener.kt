@@ -1,4 +1,4 @@
-package com.github.renettt.accessibleplugin.listeners
+package com.renettt.accessible.listeners
 
 import com.intellij.ide.FrameStateListener
 import com.intellij.openapi.diagnostic.thisLogger
