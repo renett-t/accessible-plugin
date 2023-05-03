@@ -5,6 +5,7 @@ import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.fileEditor.FileEditorManager
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
@@ -14,7 +15,6 @@ import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.PsiAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
 import com.renettt.accessible.presenter.OpenedFilesPresenter
-import com.renettt.accessible.di.DI
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 
@@ -61,5 +61,13 @@ class OpenXmlFileListener(
             val unknownFileType = file.fileType
             val unknownFileTypeN = file.fileType.javaClass.canonicalName
         }
+    }
+
+    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+        super.fileClosed(source, file)
+    }
+
+    override fun selectionChanged(event: FileEditorManagerEvent) {
+        super.selectionChanged(event)
     }
 }
