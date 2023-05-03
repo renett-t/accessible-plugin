@@ -32,6 +32,11 @@ kotlin {
     jvmToolchain(11)
 }
 
+dependencies {
+    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.70")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.70")
+}
+
 // Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
     pluginName.set(properties("pluginName"))

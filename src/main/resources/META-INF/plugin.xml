@@ -6,12 +6,18 @@
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
     <depends>org.jetbrains.android</depends>
     <depends>com.intellij.modules.androidstudio</depends>
 
     <resource-bundle>messages.BundleProperties</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+
+        <projectConfigurable instance="com.renettt.accessible.settings.AccessibleSettings"
+                             displayName="AccessibleSettings"/>
+        <projectService serviceImplementation="com.renettt.accessible.settings.SettingsService"/>
+
         <toolWindow factoryClass="com.renettt.accessible.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
 
         <notificationGroup id="AccessibleNotificationGroup"
@@ -20,7 +26,7 @@
     </extensions>
 
     <actions>
-<!--        editor examples-->
+        <!--        editor examples-->
         <action id="EditorBasics.EditorIllustrationAction"
                 class="com.renettt.accessible.editor.ReplaceAction"
                 icon="Icons.defaultIcon">
@@ -36,9 +42,9 @@
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
 
-<!--        https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/project_model/src/main/java/org/intellij/sdk/project/model-->
+        <!--        https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/project_model/src/main/java/org/intellij/sdk/project/model-->
 
-<!--        https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/psi_demo/src/main/resources/META-INF/plugin.xml-->
+        <!--        https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/psi_demo/src/main/resources/META-INF/plugin.xml-->
         <action class="com.renettt.accessible.psi.PsiNavigationDemoAction" id="PsiNavigationDemo"
                 text="PSI Navigation Demo...">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
@@ -49,29 +55,29 @@
                 class="com.renettt.accessible.actions.AnalyzeCurrentFileAction"
                 id="AnalyzeCurrentFile"
                 text="Analyze File"
-                description="Analyze currently opened file" />
+                description="Analyze currently opened file"/>
         <action
                 class="com.renettt.accessible.actions.AnalyzeAllFilesAction"
                 id="AnalyzeAllFiles"
                 text="Analyze All Files"
-                description="Analyze accessibility of all files" />
+                description="Analyze accessibility of all files"/>
 
         <group id="AccessibilityPlugin.TopMenu"
                text="Accessibility Plugin"
                description="Accessibility plugin toolbar menu">
 
-            <reference ref="AnalyzeCurrentFile" />
-            <separator />
-            <reference ref="AnalyzeAllFiles" />
-            <separator />
+            <reference ref="AnalyzeCurrentFile"/>
+            <separator/>
+            <reference ref="AnalyzeAllFiles"/>
+            <separator/>
             <add-to-group group-id="MainMenu" anchor="first"/>
         </group>
 
     </actions>
 
-<!--    <applicationListeners>-->
-<!--        <listener class="com.renettt.accessible.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>-->
-<!--    </applicationListeners>-->
+    <!--    <applicationListeners>-->
+    <!--        <listener class="com.renettt.accessible.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>-->
+    <!--    </applicationListeners>-->
 
     <projectListeners>
         <listener
@@ -80,11 +86,11 @@
     </projectListeners>
 
 
-<!--    <extensions defaultExtensionNs="com.intellij">-->
-<!--        <projectViewPane implementation="org.intellij.sdk.view.pane.ImagesProjectViewPane"/>-->
-<!--    </extensions>-->
+    <!--    <extensions defaultExtensionNs="com.intellij">-->
+    <!--        <projectViewPane implementation="org.intellij.sdk.view.pane.ImagesProjectViewPane"/>-->
+    <!--    </extensions>-->
 
-<!--    https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/project_wizard/src/main/java/org/intellij/sdk/project/wizard/DemoModuleWizardStep.java-->
+    <!--    https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/project_wizard/src/main/java/org/intellij/sdk/project/wizard/DemoModuleWizardStep.java-->
     <extensions defaultExtensionNs="com.intellij">
         <moduleBuilder builderClass="com.renettt.accessible.wizard.DemoModuleWizardStep"
                        id="DEMO_STEP"

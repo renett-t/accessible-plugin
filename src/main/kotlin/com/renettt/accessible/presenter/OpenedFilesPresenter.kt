@@ -1,12 +1,13 @@
 package com.renettt.accessible.presenter
 
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
 import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.AccessibilityCheck
 import com.renettt.accessible.checks.AccessibilityCheckResult
 
-class OpenedFilesPresenter {
+class OpenedFilesPresenter(project: Project) {
     fun showMessage(
         file: VirtualFile,
         tag: XmlTag,

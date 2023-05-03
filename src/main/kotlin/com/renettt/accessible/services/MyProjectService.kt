@@ -18,23 +18,22 @@ class MyProjectService(project: Project) {
         thisLogger().info(BundleProperties.message("projectService", project.name))
         thisLogger().warn("Don't forget to remove all non-needed sample code files with their corresponding registration entries in `plugin.xml`.")
 
-        configuration.configure()
-        initServices(project)
+//        configuration.configure()
+//        initServices(project)
+        println("Configuration done.")
     }
 
     private fun initServices(project: Project) {
 //        FileEditorManager.getInstance(project)
 //            .addFileEditorManagerListener(MyFileEditorManagerListener())
-        val listener = OpenXmlFileListener(
-            project = project,
-            accessibilityChecksService = DI(),
-            presenter = DI()
-        )
-
-        val messageBus = project.messageBus
-        messageBus.connect()
-            .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, listener)
-
+//        val listener = OpenXmlFileListener(
+//            project = project,
+//        )
+//
+//        val messageBus = project.messageBus
+//        messageBus.connect()
+//            .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, listener)
+//
 
     }
 
