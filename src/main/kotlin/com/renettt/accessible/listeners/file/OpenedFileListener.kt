@@ -9,6 +9,8 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileEvent
+import com.intellij.openapi.vfs.VirtualFileListener
 import com.intellij.psi.PsiManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlTag
@@ -24,6 +26,14 @@ class OpenedFileListener(
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
+
+    val listener = object : VirtualFileListener {
+
+        override fun contentsChanged(event: VirtualFileEvent) {
+            super.contentsChanged(event)
+        }
+
+    }
 
     private val filePresenter: OpenedFilesPresenter = Configuration().openedFilesPresenter(project)
 
@@ -60,6 +70,7 @@ class OpenedFileListener(
                 .getNotificationGroup("AccessibleNotificationGroup")
                 .createNotification("Hello from OpenXmlFileListener! Opened java file", NotificationType.INFORMATION)
                 .notify(project)
+
         } else if (file.fileType == KotlinFileType.INSTANCE) {
 
             NotificationGroupManager.getInstance()
@@ -77,6 +88,7 @@ class OpenedFileListener(
     }
 
     override fun selectionChanged(event: FileEditorManagerEvent) {
+
         super.selectionChanged(event)
     }
 }

@@ -14,7 +14,7 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
         AccessibilityCheckMetaData(
             checkId = "click-target-size",
             description = "Проверка размера области клика",
-            link = "https://youtu.be/pM-jOfy_1jM"
+            link = "https://support.google.com/accessibility/android/answer/7101858"
         )
     }
 
@@ -32,6 +32,11 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
             element as XmlTag
 
             val attributes = element.attributes
+            for (attr in attributes) {
+                val displayValue = attr.displayValue
+                val value = attr.value
+                val name = attr.name
+            }
             val subTags = element.subTags
             val name = element.name
             val localName = element.localName
