@@ -73,6 +73,9 @@
             <add-to-group group-id="MainMenu" anchor="first"/>
         </group>
 
+        <action id="com.renettt.accessible.presenter.OpenedFilesPresenter.OpenUrlAction"
+                class="com.renettt.accessible.presenter.OpenedFilesPresenter.OpenUrlAction" text="OpenUrlAction"
+                description="OpenUrlAction"/>
     </actions>
 
     <!--    <applicationListeners>-->
@@ -81,7 +84,7 @@
 
     <projectListeners>
         <listener
-                class="com.renettt.accessible.listeners.file.OpenXmlFileListener"
+                class="com.renettt.accessible.listeners.file.OpenedFileListener"
                 topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
     </projectListeners>
 
@@ -95,6 +98,13 @@
         <moduleBuilder builderClass="com.renettt.accessible.wizard.DemoModuleWizardStep"
                        id="DEMO_STEP"
                        order="first"/>
+
+        <codeInsight.lineMarkerProvider
+                language="XML"
+                implementationClass="com.renettt.accessible.notifications.MyXmlTagNotificationProvider"/>
+
     </extensions>
+
+
 
 </idea-plugin>

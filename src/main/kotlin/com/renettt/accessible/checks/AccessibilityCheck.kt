@@ -3,10 +3,21 @@ package com.renettt.accessible.checks
 import java.util.*
 
 interface AccessibilityCheck<T> {
-    val checkData: CheckData
+    /**
+     *  Регистрация данных о проверке в системе. todo: В будущем сделать автоматизированным.
+     */
+    val metaData: AccessibilityCheckMetaData
 
-    fun runCheck(data: T): List<AccessibilityCheckResult>
+    /**
+     * Основная логика проверки над элементом
+     * @return list containing result information
+     */
+    fun runCheck(element: T): List<AccessibilityCheckResult>
 
+    /**
+     * Converts check result metadata into human-readable representation.
+     * @return локализованную строку описывающую результат проверки
+     */
     fun getMessageForResultData(locale: Locale, resultId: Int, metadata: ResultMetadata?): String
 }
 

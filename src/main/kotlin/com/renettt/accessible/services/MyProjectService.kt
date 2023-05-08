@@ -2,12 +2,9 @@ package com.renettt.accessible.services
 
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.thisLogger
-import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.renettt.accessible.BundleProperties
 import com.renettt.accessible.configure.Configuration
-import com.renettt.accessible.listeners.file.OpenXmlFileListener
-import com.renettt.accessible.di.DI
 
 
 @Service(Service.Level.PROJECT)
