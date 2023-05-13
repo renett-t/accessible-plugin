@@ -49,10 +49,7 @@ class AccessibleSettings(
     override fun getDisplayName(): String = BundleProperties.message("settings.name")
 
     override fun apply() {
-//        state.apiKey = String(apiKeyField.password)
-//        state.token = String(tokenField.password)
-//        state.fromListId = fromListIdField.text
-//        state.toListId = toListIdField.text
+        state.minTouchTargetSizeOverrideForAll = defaultTouchTargetSizeOverride.text
 
         SettingsService.getInstance(project)
             .loadState(state)
