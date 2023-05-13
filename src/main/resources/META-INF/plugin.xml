@@ -22,7 +22,8 @@
 
         <notificationGroup id="AccessibleNotificationGroup"
                            displayType="BALLOON"
-                           key="com.renettt.accessible.notification"/>
+                           key="com.renettt.accessible.notification"
+                           icon="Icons.defaultIcon"/>
     </extensions>
 
     <actions>
@@ -74,7 +75,7 @@
         </group>
 
         <action id="com.renettt.accessible.presenter.OpenedFilesPresenter.OpenUrlAction"
-                class="com.renettt.accessible.presenter.OpenedFilesPresenter.OpenUrlAction" text="OpenUrlAction"
+                class="com.renettt.accessible.presenter.OpenedFilesPresenter$OpenUrlAction" text="OpenUrlAction"
                 description="OpenUrlAction"/>
     </actions>
 
@@ -103,8 +104,14 @@
                 language="XML"
                 implementationClass="com.renettt.accessible.notifications.MyXmlTagNotificationProvider"/>
 
+        <postStartupActivity
+                implementation="com.renettt.accessible.configure.AccessibleStartupActivity" />
+
     </extensions>
 
-
-
+<!--    <project-components>-->
+<!--        <component>-->
+<!--            <implementation-class>com.renettt.accessible.configure.AppComponent</implementation-class>-->
+<!--        </component>-->
+<!--    </project-components>-->
 </idea-plugin>
