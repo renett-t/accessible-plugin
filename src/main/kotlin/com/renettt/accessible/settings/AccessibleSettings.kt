@@ -2,12 +2,8 @@ package com.renettt.accessible.settings
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.ui.JBColor
 import com.intellij.ui.layout.panel
 import com.renettt.accessible.BundleProperties
-import java.awt.Color
-import java.awt.Container
-import java.net.URL
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -49,7 +45,8 @@ class AccessibleSettings(
     override fun getDisplayName(): String = BundleProperties.message("settings.name")
 
     override fun apply() {
-        state.minTouchTargetSizeOverrideForAll = defaultTouchTargetSizeOverride.text
+        state.minTouchTargetSizeOverrideForAll = defaultTouchTargetSizeOverride.text.toIntOrNull()
+            ?: state.minTouchTargetSize
 
         SettingsService.getInstance(project)
             .loadState(state)
@@ -58,7 +55,7 @@ class AccessibleSettings(
 
     override fun createComponent(): JComponent {
         defaultTouchTargetSize.apply {
-            text = state.minTouchTargetSize
+            text = state.minTouchTargetSize.toString() + "dp"
             document.addDocumentListener(this@AccessibleSettings)
         }
 

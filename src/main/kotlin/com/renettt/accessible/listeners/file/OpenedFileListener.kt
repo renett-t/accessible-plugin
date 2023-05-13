@@ -4,6 +4,8 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.highlighter.XmlFileType
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.editor.event.DocumentEvent
+import com.intellij.openapi.editor.event.DocumentListener
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -38,12 +40,15 @@ class OpenedFileListener(
     private val filePresenter: OpenedFilesPresenter = Configuration().openedFilesPresenter(project)
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+        if (!Configuration().ready)
+            return
+
         // Check if the file is an XML file
         if (file.fileType === XmlFileType.INSTANCE) {
 
             NotificationGroupManager.getInstance()
                 .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Hello from OpenXmlFileListener!", NotificationType.INFORMATION)
+                .createNotification("Opened xml file", NotificationType.INFORMATION)
                 .notify(project)
 
             // Get the PSI file for the XML file
@@ -62,20 +67,30 @@ class OpenedFileListener(
                 val allEditors = source.getAllEditors(file)
                 val ed = source.selectedTextEditor
 
+                ed?.document?.addDocumentListener(object : DocumentListener {
+
+                    override fun documentChanged(event: DocumentEvent) {
+                        NotificationGroupManager.getInstance()
+                            .getNotificationGroup("AccessibleNotificationGroup")
+                            .createNotification("documentChanged event, newFragment ${event.newFragment}", NotificationType.INFORMATION)
+                            .notify(project)
+                    }
+                })
+
                 filePresenter.showMessage(file, tag, source.selectedTextEditor)
             }
         } else if (file.fileType == JavaFileType.INSTANCE) {
 
             NotificationGroupManager.getInstance()
                 .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Hello from OpenXmlFileListener! Opened java file", NotificationType.INFORMATION)
+                .createNotification("Opened java file", NotificationType.INFORMATION)
                 .notify(project)
 
         } else if (file.fileType == KotlinFileType.INSTANCE) {
 
             NotificationGroupManager.getInstance()
                 .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Hello from OpenXmlFileListener! Opened KOTLIN file", NotificationType.INFORMATION)
+                .createNotification("Opened Kotlin file", NotificationType.INFORMATION)
                 .notify(project)
         } else {
             val unknownFileType = file.fileType

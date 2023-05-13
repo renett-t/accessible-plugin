@@ -22,9 +22,10 @@ interface AccessibilityCheck<T> {
 }
 
 
-class AccessibilityCheckResult(
+data class AccessibilityCheckResult(
     val type: AccessibilityCheckResultType,
-    val metadata: ResultMetadata
+    val metadata: ResultMetadata?,
+    val msg: String,
 )
 
 

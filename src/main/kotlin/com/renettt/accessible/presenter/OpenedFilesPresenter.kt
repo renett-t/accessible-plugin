@@ -221,6 +221,10 @@ class OpenedFilesPresenter(val project: Project) {
         return lineNumber
     }
 
+    fun ready() {
+        println("Presenter: READY")
+    }
+
 
     class OpenUrlAction : AnAction(
         "Open Link",
