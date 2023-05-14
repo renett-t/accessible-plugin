@@ -73,7 +73,7 @@ class OpenedFileListener(
                     }
                 })
 
-                logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tResults: ${checkRes.size} $checkRes")
+                logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
                 if (checkRes.isNotEmpty())
                     openedFileListenerRegistry[file]
                         ?.showMessage(tag, checkRes, source.selectedTextEditor)

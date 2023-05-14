@@ -42,13 +42,13 @@ internal class AccessibilityMessageAnnotationDialog(
 //                infoLabel.preferredSize = Dimension(400, infoLabel.preferredSize.height)
             // осуждаю что нет очевидного способа ограничить ширину вьюхи
             infoLabel.verticalAlignment = SwingConstants.CENTER // align text to the top
-            infoLabel.horizontalAlignment = SwingConstants.CENTER // align text to the center
+            infoLabel.horizontalAlignment = SwingConstants.LEFT // align text to the center
 
             val gbcForInfoLabel = GridBagConstraints().apply {
                 gridx = 0
                 gridy = elementsCounter++
                 gridwidth = 3
-                anchor = GridBagConstraints.CENTER
+                anchor = GridBagConstraints.LINE_START
                 fill = GridBagConstraints.BOTH
                 ipadx = 10
                 ipady = 10

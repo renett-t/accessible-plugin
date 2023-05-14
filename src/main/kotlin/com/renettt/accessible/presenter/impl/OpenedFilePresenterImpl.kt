@@ -80,7 +80,7 @@ class OpenedFilePresenterImpl(
         // fixme: Возможно нужно предусмотреть проверки, ибо при редактировании файла lineNumber мог сместиться.
         for (entry in checkResultsMapForElement.entries) {
             val (check, results) = entry
-            messagesToShow[lineNumber] = createAccessibilityMessagesBlock(element, check, results, editorPosition)
+            messagesToShow[lineNumber] = createAccessibilityMessagesBlock(messagesToShow[lineNumber], element, check, results, editorPosition)
         }
     }
 
@@ -101,23 +101,24 @@ class OpenedFilePresenterImpl(
         val x = rectangleEnd.x
         val y = rectangleEnd.y
 
-        println("Coordinates: rectangle $rectangle")
-        println("Coordinates: rectangleEnd $rectangleEnd")
-        println("Coordinates: $x, $y")
-
         return Point(x, y)
     }
 
 
     private fun <Element : PsiElement> createAccessibilityMessagesBlock(
+        previousData: FileAccessibilityMessagesBlock?,
         element: Element,
         check: AccessibilityCheck<Element>,
         results: List<AccessibilityCheckResult>,
         editorPosition: Point,
     ): FileAccessibilityMessagesBlock {
-        val messages = mutableListOf<FileAccessibilityMessage>()
+        val newMessages = mutableSetOf<FileAccessibilityMessage>()
+
+        if (previousData != null) {
+            newMessages.addAll(previousData.messages)
+        }
         for (result in results) {
-            messages.add(
+            newMessages.add(
                 FileAccessibilityMessage(
                     forWhom = element,
                     message = result.msg,
@@ -126,7 +127,7 @@ class OpenedFilePresenterImpl(
             )
         }
         return FileAccessibilityMessagesBlock(
-            messages = messages,
+            messages = newMessages.toList(),
             position = editorPosition
         )
     }
