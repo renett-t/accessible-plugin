@@ -16,7 +16,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
-import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
+import com.renettt.accessible.presenter.OpenedFilePresenter
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 
@@ -35,41 +35,35 @@ class OpenedFileListener(
 
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+        logger.log("File opened: $file")
+    }
+
+    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Closed file: ${file.name}",
+            NotificationType.INFORMATION
+        )
+
+        openedFileListenerRegistry.unregister(file)
+        openedFileListenerRegistry[file]?.documentListener?.let {
+            source.selectedTextEditor?.document?.removeDocumentListener(it)
+        }
+    }
+
+    override fun selectionChanged(event: FileEditorManagerEvent) {
+        val newFile = event.newFile
+        val oldFile = event.oldFile
+        logger.log("selectionChanged: new=$newFile, old=$oldFile")
+
         if (!Configuration().ready)
             return
 
         // Check if the file is an XML file
-        if (file.fileType === XmlFileType.INSTANCE) {
-            registerPresenterForFile(file, openedFileListenerRegistry)
-
-            notificationManager.showNotification(
-                project,
-                "Accessible Info",
-                "Opened xml file",
-                NotificationType.INFORMATION
-            )
-
-            source.selectedTextEditor?.document?.addDocumentListener(object : DocumentListener {
-                override fun documentChanged(event: DocumentEvent) {
-                    // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
-                    // если пришел запрос на новый а предыдущий ещё выполняется
-                    performXmlFileCheck(file, source)
-                }
-
-                override fun bulkUpdateFinished(document: Document) {
-
-                }
-            })
-
-            performXmlFileCheck(file, source)
-//            val taskPerformer = ActionListener {
-//                performXmlFileCheck(file, source)
-//            }
-//
-//            val timer = Timer(1000, taskPerformer)
-//            timer.start()
-
-        } else if (file.fileType == JavaFileType.INSTANCE) {
+        if (newFile.fileType === XmlFileType.INSTANCE) {
+            onXmlFileOpened(event.manager, newFile)
+        } else if (newFile.fileType == JavaFileType.INSTANCE) {
             notificationManager.showNotification(
                 project,
                 "Accessible Info",
@@ -78,7 +72,7 @@ class OpenedFileListener(
             )
 
 
-        } else if (file.fileType == KotlinFileType.INSTANCE) {
+        } else if (newFile.fileType == KotlinFileType.INSTANCE) {
             notificationManager.showNotification(
                 project,
                 "Accessible Info",
@@ -87,13 +81,25 @@ class OpenedFileListener(
             )
 
         } else {
-            val unknownFileType = file.fileType
-            val unknownFileTypeN = file.fileType.javaClass.canonicalName
+            val unknownFileType = newFile.fileType
+            val unknownFileTypeN = newFile.fileType.javaClass.canonicalName
         }
     }
 
+    private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Opened xml file",
+            NotificationType.INFORMATION
+        )
+
+        registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
+        performXmlFileCheck(file, source)
+    }
+
     private fun performXmlFileCheck(file: VirtualFile, source: FileEditorManager) {
-        openedFileListenerRegistry[file]?.clear()
+        openedFileListenerRegistry[file]?.presenter?.clear()
         // Get the PSI file for the XML file
         val psiFile = PsiManager.getInstance(source.project)
             .findFile(file)
@@ -107,51 +113,62 @@ class OpenedFileListener(
             logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
             if (checkRes.isNotEmpty())
                 openedFileListenerRegistry[file]
-                    ?.showMessage(tag, checkRes, source.selectedTextEditor)
+                    ?.presenter?.showMessage(tag, checkRes, source.selectedTextEditor)
         }
     }
 
-    private fun registerPresenterForFile(file: VirtualFile, openedFileListenerRegistry: OpenedFileListenerRegistry) {
+    private fun registerPresenterAndListenersForFile(
+        file: VirtualFile,
+        source: FileEditorManager,
+        openedFileListenerRegistry: OpenedFileListenerRegistry
+    ) {
+        val docChangeListener = object : DocumentListener {
+            override fun documentChanged(event: DocumentEvent) {
+                // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
+                // если пришел запрос на новый а предыдущий ещё выполняется
+                performXmlFileCheck(file, source)
+            }
+
+            override fun bulkUpdateFinished(document: Document) {
+
+            }
+        }
+
         openedFileListenerRegistry.register(
             file,
-            Configuration().openedFilesPresenter(project, file)
-        )
-    }
-
-    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        notificationManager.showNotification(
-            project,
-            "Accessible Info",
-            "Closed file: ${file.name}",
-            NotificationType.INFORMATION
+            OpenedFileListenerRegistry.Managers(
+                presenter = Configuration().openedFilesPresenter(project, file),
+                documentListener = docChangeListener
+            )
         )
 
-        openedFileListenerRegistry.unregister(file)
+        source.selectedTextEditor?.document?.addDocumentListener(docChangeListener)
     }
 
-    override fun selectionChanged(event: FileEditorManagerEvent) {
-        // todo: тут нужно убирать слушателя изменений последнего открытого файла
-        super.selectionChanged(event)
-    }
 
     private class OpenedFileListenerRegistry {
-        private val registry = hashMapOf<String, OpenedFilePresenterImpl>()
+        private val registry = hashMapOf<String, Managers>()
 
-        fun register(file: VirtualFile, openedFilePresenter: OpenedFilePresenterImpl) {
-            registry[getFileKey(file)] = openedFilePresenter
+        fun register(file: VirtualFile, managers: Managers) {
+            registry[getFileKey(file)] = managers
         }
 
         fun unregister(file: VirtualFile) {
             registry.remove(getFileKey(file))
         }
 
-        operator fun get(file: VirtualFile): OpenedFilePresenterImpl? {
+        operator fun get(file: VirtualFile): Managers? {
             return registry[getFileKey(file)]
         }
 
         private fun getFileKey(file: VirtualFile): String {
             return file.path
         }
+
+        data class Managers(
+            val presenter: OpenedFilePresenter,
+            val documentListener: DocumentListener,
+        )
     }
 
 }
