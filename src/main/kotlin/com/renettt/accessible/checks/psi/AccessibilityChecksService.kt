@@ -19,9 +19,11 @@ abstract class PsiAccessibilityChecksService<PsiCheckElement : PsiElement>(
 
     fun performChecks(element: PsiCheckElement): Map<AccessibilityCheck<PsiCheckElement>, List<AccessibilityCheckResult>> {
         val results = mutableMapOf<AccessibilityCheck<PsiCheckElement>, List<AccessibilityCheckResult>>()
+
         for (check in checks) {
-            val checkResult = check.runCheck(element)
-            results[check] = checkResult
+            val checkResults: List<AccessibilityCheckResult> = check.runCheck(element)
+            if (checkResults.isNotEmpty())
+                results[check] = checkResults
         }
 
         return results

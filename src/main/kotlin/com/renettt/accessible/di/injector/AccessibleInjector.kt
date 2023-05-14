@@ -1,9 +1,10 @@
 package com.renettt.accessible.di.injector
 
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksLoader
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
-import com.renettt.accessible.presenter.OpenedFilesPresenter
+import com.renettt.accessible.presenter.OpenedFilePresenter
 import com.renettt.accessible.settings.AccessibleState
 import com.renettt.accessible.settings.SettingsService
 
@@ -16,7 +17,7 @@ interface AccessibleInjector {
     val xmlAccessibilityChecksLoader: XmlAccessibilityChecksLoader
     val psiXmlAccessibilityChecksService: XmlAccessibilityChecksService
     fun accessibleState(project: Project): AccessibleState
-    fun openedFilesPresenter(project: Project): OpenedFilesPresenter
+    fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenter
     fun setReady(ready: Boolean)
 }
 
@@ -50,7 +51,7 @@ class AccessibleInjectorImpl : AccessibleInjector {
         return SettingsService.getInstance(project).state
     }
 
-    override fun openedFilesPresenter(project: Project): OpenedFilesPresenter {
-        return OpenedFilesPresenter(project)
+    override fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenter {
+        return OpenedFilePresenter(project, file)
     }
 }

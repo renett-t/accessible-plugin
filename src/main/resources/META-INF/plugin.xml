@@ -74,8 +74,8 @@
             <add-to-group group-id="MainMenu" anchor="first"/>
         </group>
 
-        <action id="com.renettt.accessible.presenter.OpenedFilesPresenter.OpenUrlAction"
-                class="com.renettt.accessible.presenter.OpenedFilesPresenter$OpenUrlAction" text="OpenUrlAction"
+        <action id="com.renettt.accessible.presenter.OpenedFilePresenter.OpenUrlAction"
+                class="com.renettt.accessible.presenter.OpenedFilePresenter$OpenUrlAction" text="OpenUrlAction"
                 description="OpenUrlAction"/>
     </actions>
 
