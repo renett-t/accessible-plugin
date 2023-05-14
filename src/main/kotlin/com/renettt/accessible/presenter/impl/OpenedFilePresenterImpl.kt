@@ -54,6 +54,11 @@ class OpenedFilePresenterImpl(
         }
     }
 
+    override fun clear() {
+        messagesToShow.clear()
+        shownMessageAnnotationDialogs.clear()
+    }
+
     private fun <Element : PsiElement> showHintsAndGutterIcons(
         editor: Editor,
         element: Element,
@@ -246,12 +251,12 @@ class OpenedFilePresenterImpl(
             }
 
             override fun gutterClosed() {
-                notificationManager.showNotification(
-                    project,
-                    NOTIFICATION_TITLE,
-                    "Closed Annotations. To see all check results again, click action on toolbar",
-                    NotificationType.INFORMATION
-                )
+//                notificationManager.showNotification(
+//                    project,
+//                    NOTIFICATION_TITLE,
+//                    "Closed Annotations. To see all check results again, click action on toolbar",
+//                    NotificationType.INFORMATION
+//                )
             }
 
         }, object : EditorGutterAction {

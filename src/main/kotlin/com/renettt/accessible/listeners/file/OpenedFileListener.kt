@@ -42,53 +42,72 @@ class OpenedFileListener(
         if (file.fileType === XmlFileType.INSTANCE) {
             registerPresenterForFile(file, openedFileListenerRegistry)
 
-            notificationManager.showNotification(project, "Accessible Info", "Opened xml file", NotificationType.INFORMATION)
+            notificationManager.showNotification(
+                project,
+                "Accessible Info",
+                "Opened xml file",
+                NotificationType.INFORMATION
+            )
 
-            // Get the PSI file for the XML file
-            val psiFile = PsiManager.getInstance(source.project)
-                .findFile(file)
+            source.selectedTextEditor?.document?.addDocumentListener(object : DocumentListener {
+                override fun documentChanged(event: DocumentEvent) {
+                    // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
+                    // если пришел запрос на новый а предыдущий ещё выполняется
+                    performXmlFileCheck(file, source)
+                }
 
-            // Get tags of the PSI file
-            val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
+                override fun bulkUpdateFinished(document: Document) {
 
-            for (tag in tags) {
-                val checkRes = xmlAccessibilityChecksService.performChecks(tag)
+                }
+            })
 
-                // debugging fields
-//                val locationData = tag.metaData
+            performXmlFileCheck(file, source)
+//            val taskPerformer = ActionListener {
+//                performXmlFileCheck(file, source)
+//            }
 //
-//                val editors = source.getEditors(file)
-//                val selectedEditor = source.getSelectedEditor(file)
-//                val allEditors = source.getAllEditors(file)
-//                val ed = source.selectedTextEditor
+//            val timer = Timer(1000, taskPerformer)
+//            timer.start()
 
-                source.selectedTextEditor?.document?.addDocumentListener(object : DocumentListener {
-
-                    override fun documentChanged(event: DocumentEvent) {
-
-                    }
-
-                    override fun bulkUpdateFinished(document: Document) {
-                        notificationManager.showNotification(project, "Accessible Info", "bulkUpdateFinished event, newFragment $document", NotificationType.INFORMATION)
-                    }
-                })
-
-                logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
-                if (checkRes.isNotEmpty())
-                    openedFileListenerRegistry[file]
-                        ?.showMessage(tag, checkRes, source.selectedTextEditor)
-            }
         } else if (file.fileType == JavaFileType.INSTANCE) {
-            notificationManager.showNotification(project, "Accessible Info", "Opened java file", NotificationType.INFORMATION)
-
+            notificationManager.showNotification(
+                project,
+                "Accessible Info",
+                "Opened java file",
+                NotificationType.INFORMATION
+            )
 
 
         } else if (file.fileType == KotlinFileType.INSTANCE) {
-            notificationManager.showNotification(project, "Accessible Info", "Opened kotlin file", NotificationType.INFORMATION)
+            notificationManager.showNotification(
+                project,
+                "Accessible Info",
+                "Opened kotlin file",
+                NotificationType.INFORMATION
+            )
 
         } else {
             val unknownFileType = file.fileType
             val unknownFileTypeN = file.fileType.javaClass.canonicalName
+        }
+    }
+
+    private fun performXmlFileCheck(file: VirtualFile, source: FileEditorManager) {
+        openedFileListenerRegistry[file]?.clear()
+        // Get the PSI file for the XML file
+        val psiFile = PsiManager.getInstance(source.project)
+            .findFile(file)
+
+        // Get tags of the PSI file
+        val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
+
+        for (tag in tags) {
+            val checkRes = xmlAccessibilityChecksService.performChecks(tag)
+
+            logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
+            if (checkRes.isNotEmpty())
+                openedFileListenerRegistry[file]
+                    ?.showMessage(tag, checkRes, source.selectedTextEditor)
         }
     }
 
@@ -100,7 +119,12 @@ class OpenedFileListener(
     }
 
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        notificationManager.showNotification(project, "Accessible Info", "Closed file: ${file.name}", NotificationType.INFORMATION)
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Closed file: ${file.name}",
+            NotificationType.INFORMATION
+        )
 
         openedFileListenerRegistry.unregister(file)
     }
