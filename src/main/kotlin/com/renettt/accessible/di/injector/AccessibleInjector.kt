@@ -4,6 +4,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksLoader
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
+import com.renettt.accessible.logging.AccessibleLogger
+import com.renettt.accessible.logging.impl.AccessibleLoggerImpl
 import com.renettt.accessible.notifications.AccessibleNotificationManager
 import com.renettt.accessible.notifications.impl.AccessibleNotificationManagerImpl
 import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
@@ -22,6 +24,8 @@ interface AccessibleInjector {
     val psiXmlAccessibilityChecksService: XmlAccessibilityChecksService
 
     val notificationManager: AccessibleNotificationManager
+
+    val logger: AccessibleLogger
 
     fun accessibleState(project: Project): AccessibleState
     fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl
@@ -54,6 +58,10 @@ class AccessibleInjectorImpl : AccessibleInjector {
 
     override val notificationManager: AccessibleNotificationManager by lazy {
         AccessibleNotificationManagerImpl()
+    }
+
+    override val logger: AccessibleLogger by lazy {
+        AccessibleLoggerImpl()
     }
 
     override fun accessibleState(project: Project): AccessibleState {

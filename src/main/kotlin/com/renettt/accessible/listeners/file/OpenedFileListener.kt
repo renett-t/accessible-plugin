@@ -2,7 +2,6 @@ package com.renettt.accessible.listeners.file
 
 import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.ide.highlighter.XmlFileType
-import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.event.DocumentEvent
@@ -31,6 +30,8 @@ class OpenedFileListener(
     private val openedFileListenerRegistry = OpenedFileListenerRegistry()
 
     private val notificationManager = Configuration().notificationManager
+
+    private val logger = Configuration().logger
 
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -72,7 +73,7 @@ class OpenedFileListener(
                     }
                 })
 
-                // todo: добавить логи
+                logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tResults: ${checkRes.size} $checkRes")
                 if (checkRes.isNotEmpty())
                     openedFileListenerRegistry[file]
                         ?.showMessage(tag, checkRes, source.selectedTextEditor)
