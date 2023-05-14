@@ -1,4 +1,4 @@
-package com.renettt.accessible.wizard
+package com.renettt.accessible.utils.notused.wizard
 
 import com.intellij.ide.util.projectWizard.ModuleBuilder;
 import com.intellij.ide.util.projectWizard.ModuleWizardStep;

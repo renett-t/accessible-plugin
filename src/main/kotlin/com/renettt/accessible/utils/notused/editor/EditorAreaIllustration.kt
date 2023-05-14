@@ -1,4 +1,4 @@
-package com.renettt.accessible.editor
+package com.renettt.accessible.utils.notused.editor
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

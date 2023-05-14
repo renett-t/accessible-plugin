@@ -1,4 +1,4 @@
-package com.renettt.accessible.notifications
+package com.renettt.accessible.utils.notused
 
 import com.intellij.codeHighlighting.Pass.LINE_MARKERS
 import com.intellij.codeInsight.daemon.LineMarkerInfo
@@ -149,7 +149,7 @@ class MyXmlTagNotificationProvider : LineMarkerProvider {
 //    ): MyNotificationPanel? {
 //        return super.createNotificationPanel(file, fileEditor, project)
 //    }
-    override fun getLineMarkerInfo(p0: PsiElement): LineMarkerInfo<*> {
+    override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*> {
         TODO("Not yet implemented")
     }
 

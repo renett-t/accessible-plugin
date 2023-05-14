@@ -4,7 +4,9 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksLoader
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
-import com.renettt.accessible.presenter.OpenedFilePresenter
+import com.renettt.accessible.notifications.AccessibleNotificationManager
+import com.renettt.accessible.notifications.impl.AccessibleNotificationManagerImpl
+import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
 import com.renettt.accessible.settings.AccessibleState
 import com.renettt.accessible.settings.SettingsService
 
@@ -13,12 +15,16 @@ interface AccessibleInjector {
     val ready: Boolean
     val project: Project
     fun loadProject(project: Project)
+    fun setReady(ready: Boolean)
 
     val xmlAccessibilityChecksLoader: XmlAccessibilityChecksLoader
+
     val psiXmlAccessibilityChecksService: XmlAccessibilityChecksService
+
+    val notificationManager: AccessibleNotificationManager
+
     fun accessibleState(project: Project): AccessibleState
-    fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenter
-    fun setReady(ready: Boolean)
+    fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl
 }
 
 class AccessibleInjectorImpl : AccessibleInjector {
@@ -46,12 +52,15 @@ class AccessibleInjectorImpl : AccessibleInjector {
         }
     }
 
+    override val notificationManager: AccessibleNotificationManager by lazy {
+        AccessibleNotificationManagerImpl()
+    }
 
     override fun accessibleState(project: Project): AccessibleState {
         return SettingsService.getInstance(project).state
     }
 
-    override fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenter {
-        return OpenedFilePresenter(project, file)
+    override fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl {
+        return OpenedFilePresenterImpl(project, file, notificationManager)
     }
 }

@@ -17,7 +17,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
-import com.renettt.accessible.presenter.OpenedFilePresenter
+import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 
@@ -30,12 +30,8 @@ class OpenedFileListener(
 
     private val openedFileListenerRegistry = OpenedFileListenerRegistry()
 
-//    val listener = object : VirtualFileListener {
-//
-//        override fun contentsChanged(event: VirtualFileEvent) {
-//            super.contentsChanged(event)
-//        }
-//    }
+    private val notificationManager = Configuration().notificationManager
+
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
         if (!Configuration().ready)
@@ -45,10 +41,7 @@ class OpenedFileListener(
         if (file.fileType === XmlFileType.INSTANCE) {
             registerPresenterForFile(file, openedFileListenerRegistry)
 
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Opened xml file", NotificationType.INFORMATION)
-                .notify(project)
+            notificationManager.showNotification(project, "Accessible Info", "Opened xml file", NotificationType.INFORMATION)
 
             // Get the PSI file for the XML file
             val psiFile = PsiManager.getInstance(source.project)
@@ -75,13 +68,7 @@ class OpenedFileListener(
                     }
 
                     override fun bulkUpdateFinished(document: Document) {
-                        NotificationGroupManager.getInstance()
-                            .getNotificationGroup("AccessibleNotificationGroup")
-                            .createNotification(
-                                "bulkUpdateFinished event, newFragment ${document}",
-                                NotificationType.INFORMATION
-                            )
-                            .notify(project)
+                        notificationManager.showNotification(project, "Accessible Info", "bulkUpdateFinished event, newFragment $document", NotificationType.INFORMATION)
                     }
                 })
 
@@ -91,18 +78,13 @@ class OpenedFileListener(
                         ?.showMessage(tag, checkRes, source.selectedTextEditor)
             }
         } else if (file.fileType == JavaFileType.INSTANCE) {
+            notificationManager.showNotification(project, "Accessible Info", "Opened java file", NotificationType.INFORMATION)
 
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Opened java file", NotificationType.INFORMATION)
-                .notify(project)
+
 
         } else if (file.fileType == KotlinFileType.INSTANCE) {
+            notificationManager.showNotification(project, "Accessible Info", "Opened kotlin file", NotificationType.INFORMATION)
 
-            NotificationGroupManager.getInstance()
-                .getNotificationGroup("AccessibleNotificationGroup")
-                .createNotification("Opened Kotlin file", NotificationType.INFORMATION)
-                .notify(project)
         } else {
             val unknownFileType = file.fileType
             val unknownFileTypeN = file.fileType.javaClass.canonicalName
@@ -117,10 +99,7 @@ class OpenedFileListener(
     }
 
     override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        NotificationGroupManager.getInstance()
-            .getNotificationGroup("AccessibleNotificationGroup")
-            .createNotification("Closed file: ${file.name}", NotificationType.INFORMATION)
-            .notify(project)
+        notificationManager.showNotification(project, "Accessible Info", "Closed file: ${file.name}", NotificationType.INFORMATION)
 
         openedFileListenerRegistry.unregister(file)
     }
@@ -131,9 +110,9 @@ class OpenedFileListener(
     }
 
     private class OpenedFileListenerRegistry {
-        private val registry = hashMapOf<String, OpenedFilePresenter>()
+        private val registry = hashMapOf<String, OpenedFilePresenterImpl>()
 
-        fun register(file: VirtualFile, openedFilePresenter: OpenedFilePresenter) {
+        fun register(file: VirtualFile, openedFilePresenter: OpenedFilePresenterImpl) {
             registry[getFileKey(file)] = openedFilePresenter
         }
 
@@ -141,7 +120,7 @@ class OpenedFileListener(
             registry.remove(getFileKey(file))
         }
 
-        operator fun get(file: VirtualFile): OpenedFilePresenter? {
+        operator fun get(file: VirtualFile): OpenedFilePresenterImpl? {
             return registry[getFileKey(file)]
         }
 

@@ -1,4 +1,4 @@
-package com.renettt.accessible.toolWindow
+package com.renettt.accessible.utils.notused.toolWindow
 
 import com.intellij.openapi.components.service
 import com.intellij.openapi.diagnostic.thisLogger
@@ -9,7 +9,7 @@ import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.content.ContentFactory
 import com.renettt.accessible.BundleProperties
-import com.renettt.accessible.services.MyProjectService
+import com.renettt.accessible.utils.notused.services.MyProjectService
 import javax.swing.JButton
 
 

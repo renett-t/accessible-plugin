@@ -1,4 +1,4 @@
-package com.renettt.accessible.listeners
+package com.renettt.accessible.utils.notused
 
 import com.intellij.ide.FrameStateListener
 import com.intellij.openapi.diagnostic.thisLogger

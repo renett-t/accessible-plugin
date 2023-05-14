@@ -1,4 +1,4 @@
-package com.renettt.accessible.psi
+package com.renettt.accessible.utils.notused.psi
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;

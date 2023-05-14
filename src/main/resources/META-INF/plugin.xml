@@ -18,7 +18,7 @@
                              displayName="AccessibleSettings"/>
         <projectService serviceImplementation="com.renettt.accessible.settings.SettingsService"/>
 
-        <toolWindow factoryClass="com.renettt.accessible.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+        <toolWindow factoryClass="com.renettt.accessible.utils.notused.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
 
         <notificationGroup id="AccessibleNotificationGroup"
                            displayType="BALLOON"
@@ -29,13 +29,13 @@
     <actions>
         <!--        editor examples-->
         <action id="EditorBasics.EditorIllustrationAction"
-                class="com.renettt.accessible.editor.ReplaceAction"
+                class="com.renettt.accessible.utils.notused.editor.ReplaceAction"
                 icon="Icons.defaultIcon">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
 
         <action id="EditorBasics.LogicalPositionIllustration"
-                class="com.renettt.accessible.editor.EditorAreaIllustration"
+                class="com.renettt.accessible.utils.notused.editor.EditorAreaIllustration"
                 text="Caret Position"
                 description="Reports information about the caret position."
                 icon="AllIcons.Ide.Pipette">
@@ -46,7 +46,7 @@
         <!--        https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/project_model/src/main/java/org/intellij/sdk/project/model-->
 
         <!--        https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/psi_demo/src/main/resources/META-INF/plugin.xml-->
-        <action class="com.renettt.accessible.psi.PsiNavigationDemoAction" id="PsiNavigationDemo"
+        <action class="com.renettt.accessible.utils.notused.psi.PsiNavigationDemoAction" id="PsiNavigationDemo"
                 text="PSI Navigation Demo...">
             <add-to-group group-id="ToolsMenu" anchor="last"/>
         </action>
@@ -74,13 +74,13 @@
             <add-to-group group-id="MainMenu" anchor="first"/>
         </group>
 
-        <action id="com.renettt.accessible.presenter.OpenedFilePresenter.OpenUrlAction"
-                class="com.renettt.accessible.presenter.OpenedFilePresenter$OpenUrlAction" text="OpenUrlAction"
+        <action id="com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl.OpenUrlAction"
+                class="com.renettt.accessible.presenter.OpenUrlAction" text="OpenUrlAction"
                 description="OpenUrlAction"/>
     </actions>
 
     <!--    <applicationListeners>-->
-    <!--        <listener class="com.renettt.accessible.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>-->
+    <!--        <listener class="com.renettt.accessible.utils.notused.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>-->
     <!--    </applicationListeners>-->
 
     <projectListeners>
@@ -96,13 +96,13 @@
 
     <!--    https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/project_wizard/src/main/java/org/intellij/sdk/project/wizard/DemoModuleWizardStep.java-->
     <extensions defaultExtensionNs="com.intellij">
-        <moduleBuilder builderClass="com.renettt.accessible.wizard.DemoModuleWizardStep"
+        <moduleBuilder builderClass="com.renettt.accessible.utils.notused.wizard.DemoModuleWizardStep"
                        id="DEMO_STEP"
                        order="first"/>
 
         <codeInsight.lineMarkerProvider
                 language="XML"
-                implementationClass="com.renettt.accessible.notifications.MyXmlTagNotificationProvider"/>
+                implementationClass="com.renettt.accessible.utils.notused.MyXmlTagNotificationProvider"/>
 
         <postStartupActivity
                 implementation="com.renettt.accessible.configure.AccessibleStartupActivity" />
