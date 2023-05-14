@@ -1,18 +1,117 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>com.github.renettt.accessibleplugin</id>
-    <name>accessible-plugin Template</name>
+    <id>com.renettt.accessible</id>
+    <name>Accessible</name>
     <vendor>renett-t</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.java</depends>
+    <depends>org.jetbrains.kotlin</depends>
+    <depends>org.jetbrains.android</depends>
+    <depends>com.intellij.modules.androidstudio</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
+    <resource-bundle>messages.BundleProperties</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow factoryClass="com.github.renettt.accessibleplugin.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+
+        <projectConfigurable instance="com.renettt.accessible.settings.AccessibleSettings"
+                             displayName="AccessibleSettings"/>
+        <projectService serviceImplementation="com.renettt.accessible.settings.SettingsService"/>
+
+        <toolWindow factoryClass="com.renettt.accessible.utils.notused.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
+
+        <notificationGroup id="AccessibleNotificationGroup"
+                           displayType="BALLOON"
+                           key="com.renettt.accessible.notification"
+                           icon="Icons.defaultIcon"/>
     </extensions>
 
-    <applicationListeners>
-        <listener class="com.github.renettt.accessibleplugin.listeners.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>
-    </applicationListeners>
+    <actions>
+        <!--        editor examples-->
+        <action id="EditorBasics.EditorIllustrationAction"
+                class="com.renettt.accessible.utils.notused.editor.ReplaceAction"
+                icon="Icons.defaultIcon">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+
+        <action id="EditorBasics.LogicalPositionIllustration"
+                class="com.renettt.accessible.utils.notused.editor.EditorAreaIllustration"
+                text="Caret Position"
+                description="Reports information about the caret position."
+                icon="AllIcons.Ide.Pipette">
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt G"/>
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+        </action>
+
+        <!--        https://github.com/JetBrains/intellij-sdk-code-samples/tree/main/project_model/src/main/java/org/intellij/sdk/project/model-->
+
+        <!--        https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/psi_demo/src/main/resources/META-INF/plugin.xml-->
+        <action class="com.renettt.accessible.utils.notused.psi.PsiNavigationDemoAction" id="PsiNavigationDemo"
+                text="PSI Navigation Demo...">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+
+
+        <action
+                class="com.renettt.accessible.actions.AnalyzeCurrentFileAction"
+                id="AnalyzeCurrentFile"
+                text="Analyze File"
+                description="Analyze currently opened file"/>
+        <action
+                class="com.renettt.accessible.actions.AnalyzeAllFilesAction"
+                id="AnalyzeAllFiles"
+                text="Analyze All Files"
+                description="Analyze accessibility of all files"/>
+
+        <group id="AccessibilityPlugin.TopMenu"
+               text="Accessibility Plugin"
+               description="Accessibility plugin toolbar menu">
+
+            <reference ref="AnalyzeCurrentFile"/>
+            <separator/>
+            <reference ref="AnalyzeAllFiles"/>
+            <separator/>
+            <add-to-group group-id="MainMenu" anchor="first"/>
+        </group>
+
+        <action id="com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl.OpenUrlAction"
+                class="com.renettt.accessible.presenter.OpenUrlAction" text="OpenUrlAction"
+                description="OpenUrlAction"/>
+    </actions>
+
+    <!--    <applicationListeners>-->
+    <!--        <listener class="com.renettt.accessible.utils.notused.MyFrameStateListener" topic="com.intellij.ide.FrameStateListener"/>-->
+    <!--    </applicationListeners>-->
+
+    <projectListeners>
+        <listener
+                class="com.renettt.accessible.listeners.file.OpenedFileListener"
+                topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"/>
+    </projectListeners>
+
+
+    <!--    <extensions defaultExtensionNs="com.intellij">-->
+    <!--        <projectViewPane implementation="org.intellij.sdk.view.pane.ImagesProjectViewPane"/>-->
+    <!--    </extensions>-->
+
+    <!--    https://github.com/JetBrains/intellij-sdk-code-samples/blob/main/project_wizard/src/main/java/org/intellij/sdk/project/wizard/DemoModuleWizardStep.java-->
+    <extensions defaultExtensionNs="com.intellij">
+        <moduleBuilder builderClass="com.renettt.accessible.utils.notused.wizard.DemoModuleWizardStep"
+                       id="DEMO_STEP"
+                       order="first"/>
+
+        <codeInsight.lineMarkerProvider
+                language="XML"
+                implementationClass="com.renettt.accessible.utils.notused.MyXmlTagNotificationProvider"/>
+
+        <postStartupActivity
+                implementation="com.renettt.accessible.configure.AccessibleStartupActivity" />
+
+    </extensions>
+
+<!--    <project-components>-->
+<!--        <component>-->
+<!--            <implementation-class>com.renettt.accessible.configure.AppComponent</implementation-class>-->
+<!--        </component>-->
+<!--    </project-components>-->
 </idea-plugin>

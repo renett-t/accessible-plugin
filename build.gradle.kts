@@ -1,5 +1,7 @@
+import org.intellij.markdown.html.URI
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import java.net.URL
 
 fun properties(key: String) = providers.gradleProperty(key)
 fun environment(key: String) = providers.environmentVariable(key)
@@ -25,11 +27,30 @@ version = properties("pluginVersion").get()
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven {
+        url = URI.create("https://www.jetbrains.com/intellij-repository/releases/")
+    }
 }
 
 // Set the JVM language level used to build the project. Use Java 11 for 2020.3+, and Java 17 for 2022.2+.
 kotlin {
     jvmToolchain(11)
+}
+
+dependencies {
+    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.70")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.70")
+
+    // these dependencies needed by ide-core
+//    runtimeOnly("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.2-6")
+//    runtimeOnly("org.jetbrains.intellij.deps.batik:batik-transcoder:1.16.0-35")
+//    runtimeOnly("org.jetbrains.intellij.deps:java-compatibility:1.0.1")
+//    runtimeOnly("com.h2database:h2-mvstore:2.1.219-jb.4")
+//    runtimeOnly("com.jetbrains:jbr-api:17.1.5.0")
+//    runtimeOnly("org.jetbrains.intellij.deps:trove4j:1.0.20221201")
+
+//    implementation("com.jetbrains.intellij.platform:ide-core:231.8770.71")
+
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
@@ -39,7 +60,14 @@ intellij {
     type.set(properties("platformType"))
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins.set(properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
+    plugins.set(
+        properties("platformPlugins")
+            .map {
+                it.split(',')
+                    .map(String::trim)
+                    .filter(String::isNotEmpty)
+            }
+    )
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
