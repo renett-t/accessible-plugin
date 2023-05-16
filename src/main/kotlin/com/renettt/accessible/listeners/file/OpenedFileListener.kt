@@ -87,18 +87,25 @@ class OpenedFileListener(
             )
 
 
-        } else if (file.fileType == KotlinFileType.INSTANCE) {
-            notificationManager.showNotification(
-                project,
-                "Accessible Info",
-                "Opened kotlin file",
-                NotificationType.INFORMATION
-            )
-
+        } else if (file.fileType.defaultExtension == KotlinFileType.EXTENSION) {
+            onKotlinFileOpened(fileEditorManager, file)
         } else {
             val unknownFileType = file.fileType
             val unknownFileTypeN = file.fileType.javaClass.canonicalName
         }
+    }
+
+    private fun onKotlinFileOpened(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Opened kotlin file",
+            NotificationType.INFORMATION
+        )
+
+        registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
+        openedFileListenerRegistry[file]?.presenter?.clear()
+        KotlinFileChecks().performFileCheck(file, source, logger, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -141,7 +148,7 @@ class OpenedFileListener(
             override fun documentChanged(event: DocumentEvent) {
                 // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
                 // если пришел запрос на новый а предыдущий ещё выполняется
-                performXmlFileCheck(file, source)
+                performChecks(file, source)
             }
 
             override fun bulkUpdateFinished(document: Document) {
