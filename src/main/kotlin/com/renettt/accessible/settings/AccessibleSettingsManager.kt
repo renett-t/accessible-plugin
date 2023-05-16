@@ -4,12 +4,13 @@ import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.ui.layout.panel
 import com.renettt.accessible.BundleProperties
+import com.renettt.accessible.configure.Configuration
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
 
-class AccessibleSettings(
+class AccessibleSettingsManager(
     private val project: Project
 ) : Configurable, DocumentListener {
 
@@ -23,19 +24,15 @@ class AccessibleSettings(
         isEditable = false
     }
     private val defaultTouchTargetSizeOverride: JTextField = JTextField().apply {
-        isEditable = false
+        isEditable = true
     }
-
-//    private val addButton: JButton = JButton().apply {
-//        icon = ImageIcon(javaClass.classLoader.getResource("icons/add.png"))
-//    }
 
     private val panel: JPanel = panel {
         row(BundleProperties.message("settings.defaultTouchTargetSize")) {
             defaultTouchTargetSize()
         }
-        row {
-//            addButton()
+        row(BundleProperties.message("settings.overrideTouchTargetSize")) {
+            defaultTouchTargetSizeOverride()
         }
 
     }
@@ -51,12 +48,19 @@ class AccessibleSettings(
         SettingsService.getInstance(project)
             .loadState(state)
         modified = false
+
+        Configuration().settingsChangeEvent(Unit)
     }
 
     override fun createComponent(): JComponent {
         defaultTouchTargetSize.apply {
             text = state.minTouchTargetSize.toString() + "dp"
-            document.addDocumentListener(this@AccessibleSettings)
+            document.addDocumentListener(this@AccessibleSettingsManager)
+        }
+
+        defaultTouchTargetSize.apply {
+            text = state.minTouchTargetSizeOverrideForAll.toString()
+            document.addDocumentListener(this@AccessibleSettingsManager)
         }
 
         return panel
@@ -72,5 +76,10 @@ class AccessibleSettings(
 
     override fun removeUpdate(e: DocumentEvent?) {
         modified = true
+    }
+
+
+    interface SettingsChangeEventHandler {
+        fun onSettingsChangeUpdate()
     }
 }

@@ -17,12 +17,19 @@ import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
 import com.renettt.accessible.presenter.OpenedFilePresenter
+import com.renettt.accessible.settings.AccessibleSettingsManager
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 
 class OpenedFileListener(
     private val project: Project,
-) : FileEditorManagerListener {
+) : FileEditorManagerListener, AccessibleSettingsManager.SettingsChangeEventHandler {
+
+    private val visibleFiles: MutableSet<VirtualFile> = mutableSetOf()
+    init {
+        Configuration().settingsChangeEvent += this
+    }
+    private val fileEditorManager: FileEditorManager = FileEditorManager.getInstance(project)
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
@@ -55,15 +62,23 @@ class OpenedFileListener(
     override fun selectionChanged(event: FileEditorManagerEvent) {
         val newFile = event.newFile
         val oldFile = event.oldFile
+
+        visibleFiles.add(newFile)
+        visibleFiles.remove(oldFile)
+
         logger.log("selectionChanged: new=$newFile, old=$oldFile")
 
+        performChecks(newFile, event.manager)
+    }
+
+    private fun performChecks(file: VirtualFile, fileEditorManager: FileEditorManager) {
         if (!Configuration().ready)
             return
 
         // Check if the file is an XML file
-        if (newFile.fileType === XmlFileType.INSTANCE) {
-            onXmlFileOpened(event.manager, newFile)
-        } else if (newFile.fileType == JavaFileType.INSTANCE) {
+        if (file.fileType === XmlFileType.INSTANCE) {
+            onXmlFileOpened(fileEditorManager, file)
+        } else if (file.fileType == JavaFileType.INSTANCE) {
             notificationManager.showNotification(
                 project,
                 "Accessible Info",
@@ -72,7 +87,7 @@ class OpenedFileListener(
             )
 
 
-        } else if (newFile.fileType == KotlinFileType.INSTANCE) {
+        } else if (file.fileType == KotlinFileType.INSTANCE) {
             notificationManager.showNotification(
                 project,
                 "Accessible Info",
@@ -81,8 +96,8 @@ class OpenedFileListener(
             )
 
         } else {
-            val unknownFileType = newFile.fileType
-            val unknownFileTypeN = newFile.fileType.javaClass.canonicalName
+            val unknownFileType = file.fileType
+            val unknownFileTypeN = file.fileType.javaClass.canonicalName
         }
     }
 
@@ -169,6 +184,12 @@ class OpenedFileListener(
             val presenter: OpenedFilePresenter,
             val documentListener: DocumentListener,
         )
+    }
+
+    override fun onSettingsChangeUpdate() {
+        for (file in visibleFiles) {
+            performChecks(file, fileEditorManager)
+        }
     }
 
 }

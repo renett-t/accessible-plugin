@@ -18,7 +18,7 @@ internal class AccessibilityMessageAnnotationDialog(
     messagesBlock: FileAccessibilityMessagesBlock,
     point: Point,
     desiredSize: Dimension,
-    delayMs: Long = 3000,
+    delayMs: Long = 2000,
     onShowedListener: () -> Unit,
     onActionClickedListener: (mouseEvent: MouseEvent) -> Unit,
     onOpenLinkClickedListener: (mouseEvent: MouseEvent, url: String) -> Unit,

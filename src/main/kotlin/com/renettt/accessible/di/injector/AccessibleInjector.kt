@@ -9,8 +9,10 @@ import com.renettt.accessible.logging.impl.AccessibleLoggerImpl
 import com.renettt.accessible.notifications.AccessibleNotificationManager
 import com.renettt.accessible.notifications.impl.AccessibleNotificationManagerImpl
 import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
+import com.renettt.accessible.settings.AccessibleSettingsManager
 import com.renettt.accessible.settings.AccessibleState
 import com.renettt.accessible.settings.SettingsService
+import com.renettt.accessible.utils.event.ObservableEvent
 
 interface AccessibleInjector {
 
@@ -28,6 +30,9 @@ interface AccessibleInjector {
     val logger: AccessibleLogger
 
     fun accessibleState(project: Project): AccessibleState
+
+    val settingsChangeEvent: ObservableEvent<AccessibleSettingsManager.SettingsChangeEventHandler, AccessibleInjector, Unit>
+
     fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl
 }
 
@@ -66,6 +71,19 @@ class AccessibleInjectorImpl : AccessibleInjector {
 
     override fun accessibleState(project: Project): AccessibleState {
         return SettingsService.getInstance(project).state
+    }
+
+    override val settingsChangeEvent: ObservableEvent<AccessibleSettingsManager.SettingsChangeEventHandler, AccessibleInjector, Unit> by lazy {
+        object :
+            ObservableEvent<AccessibleSettingsManager.SettingsChangeEventHandler, AccessibleInjector, Unit>(this) {
+            override fun notifyHandler(
+                handler: AccessibleSettingsManager.SettingsChangeEventHandler,
+                sender: AccessibleInjector,
+                args: Unit
+            ) {
+                handler.onSettingsChangeUpdate()
+            }
+        }
     }
 
     override fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl {
