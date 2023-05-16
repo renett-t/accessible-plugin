@@ -5,6 +5,7 @@ import com.renettt.accessible.checks.AccessibilityCheckResult
 import com.renettt.accessible.checks.ResultMetadata
 import com.renettt.accessible.checks.psi.ComposeAccessibilityCheck
 import org.jetbrains.kotlin.psi.KtElement
+import org.jetbrains.kotlin.psi.KtNamedDeclaration
 import java.util.*
 
 class ComposeClickTargetSizeCheck : ComposeAccessibilityCheck {
