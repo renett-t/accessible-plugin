@@ -13,6 +13,8 @@ interface OpenedFilePresenter {
         editor: Editor?,
     )
 
+    fun clear()
+
 //    fun showMessage(
 //        tag: XmlTag,
 //        checkResultsMap: Map<AccessibilityCheck<XmlElement>, List<AccessibilityCheckResult>>,

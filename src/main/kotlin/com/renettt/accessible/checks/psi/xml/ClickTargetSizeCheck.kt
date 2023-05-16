@@ -25,41 +25,50 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
         )
     }
 
-    override fun runCheck(element: XmlElement): List<AccessibilityCheckResult> {
-        val isValid = element.isValid
-        val firstChild = element.firstChild
-        val lastChild = element.lastChild
-        val parent = element.parent
+    override fun availableFor(element: XmlElement): Boolean {
+        return element is XmlTag && element.isValid
+                && checkIfClickable(element)
+    }
 
-        val navigationElement = element.navigationElement
-        val originalElement = element.originalElement
+    private fun checkIfClickable(tag: XmlTag): Boolean {
+        return tagIsClickable(tag) || tagIsButton(tag)
+    }
 
-        val isXmlTag = element is XmlTag
-        if (isXmlTag) {
-            element as XmlTag
-            val checkResults = mutableListOf<AccessibilityCheckResult>()
-
-            checkResults.addAll(
-                checkTagIfButton(element)
-            )
-            checkResults.addAll(
-                checkTagIfClickable(element)
-            )
-
-            val tagName = element.name
-            val debugBreakPointValue = 25
-
-            return checkResults
+    private fun tagIsClickable(tag: XmlTag): Boolean {
+        for (attribute in tag.attributes) {
+            if (attribute.name == searchedTagAttribute) {
+                return true
+            }
         }
+        return false
+    }
 
-        return emptyList()
+    private fun tagIsButton(tag: XmlTag): Boolean {
+        return tag.name.contains(searchedTagPartLowerCase, ignoreCase = true)
+    }
+
+    override fun performCheckOperations(element: XmlElement): List<AccessibilityCheckResult> {
+        element as XmlTag
+        val checkResults = mutableListOf<AccessibilityCheckResult>()
+
+        checkResults.addAll(
+            checkTagIfButton(element)
+        )
+        checkResults.addAll(
+            checkTagIfClickable(element)
+        )
+
+        val tagName = element.name
+        val tagAttrs = element.attributes
+        val debugBreakPointValue = 25
+
+        return checkResults
     }
 
     private fun checkTagIfButton(tag: XmlTag): List<AccessibilityCheckResult> {
         val results = mutableListOf<AccessibilityCheckResult>()
-        val tagName = tag.name
 
-        return if (tagName.contains(searchedTagPartLowerCase, ignoreCase = true)) {
+        return if (tagIsButton(tag)) {
             results.addAll(checkWidthAndHeight(tag))
             results
         } else
@@ -72,8 +81,7 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
         searchedTagName: String,
         fromParent: Boolean = false
     ): AccessibilityCheckResult? {
-        val attrName = attribute.name
-        val breakPoint = 9
+
         if (attribute.name == searchedTagName) {
             val value = attribute.value
 
@@ -88,7 +96,7 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
                     AccessibilityCheckResult(
                         type = AccessibilityCheckResultType.WARNING,
                         metadata = null,
-                        msg = "Incorrect value for ${attribute.name}. Should be more than ${state.minTouchTargetSize}dp. Current = $value",
+                        msg = "Incorrect value for `${attribute.name}`. Should be more than ${state.minTouchTargetSize}dp. Current = $value",
                     )
                 } else
                     null
@@ -102,14 +110,12 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
         attribute: XmlAttribute,
         searchedTagName: String
     ): AccessibilityCheckResult? {
-        val name = attribute.name
-        val value = attribute.value
 
         // fixme: searching in parent's parent tags
         val parentTag = tag.parentTag ?: return AccessibilityCheckResult(
             type = AccessibilityCheckResultType.ERROR,
             metadata = null,
-            msg = "No data about view's size. Specify attributes (layout_width, layout_height)"
+            msg = "No data about view's size. Specify attributes (`layout_width`, `layout_height`)"
         )
 
         for (parentAttribute in parentTag.attributes) {
@@ -122,13 +128,9 @@ class ClickTargetSizeCheck : XmlAccessibilityCheck {
 
     private fun checkTagIfClickable(tag: XmlTag): Collection<AccessibilityCheckResult> {
         val results = mutableListOf<AccessibilityCheckResult>()
-        val tagName = tag.name
 
-        for (attribute in tag.attributes) {
-            if (attribute.name == searchedTagAttribute) {
-                results.addAll(checkWidthAndHeight(tag))
-                break
-            }
+        if (tagIsClickable(tag)) {
+            results.addAll(checkWidthAndHeight(tag))
         }
 
         return results

@@ -16,13 +16,20 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlTag
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
-import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
+import com.renettt.accessible.presenter.OpenedFilePresenter
+import com.renettt.accessible.settings.AccessibleSettingsManager
 import org.jetbrains.kotlin.idea.KotlinFileType
 
 
 class OpenedFileListener(
     private val project: Project,
-) : FileEditorManagerListener {
+) : FileEditorManagerListener, AccessibleSettingsManager.SettingsChangeEventHandler {
+
+    private val visibleFiles: MutableSet<VirtualFile> = mutableSetOf()
+    init {
+        Configuration().settingsChangeEvent += this
+    }
+    private val fileEditorManager: FileEditorManager = FileEditorManager.getInstance(project)
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
@@ -35,56 +42,58 @@ class OpenedFileListener(
 
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
+        logger.log("File opened: $file")
+    }
+
+    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Closed file: ${file.name}",
+            NotificationType.INFORMATION
+        )
+
+        openedFileListenerRegistry.unregister(file)
+        openedFileListenerRegistry[file]?.documentListener?.let {
+            source.selectedTextEditor?.document?.removeDocumentListener(it)
+        }
+    }
+
+    override fun selectionChanged(event: FileEditorManagerEvent) {
+        val newFile = event.newFile
+        val oldFile = event.oldFile
+
+        visibleFiles.add(newFile)
+        visibleFiles.remove(oldFile)
+
+        logger.log("selectionChanged: new=$newFile, old=$oldFile")
+
+        performChecks(newFile, event.manager)
+    }
+
+    private fun performChecks(file: VirtualFile, fileEditorManager: FileEditorManager) {
         if (!Configuration().ready)
             return
 
         // Check if the file is an XML file
         if (file.fileType === XmlFileType.INSTANCE) {
-            registerPresenterForFile(file, openedFileListenerRegistry)
-
-            notificationManager.showNotification(project, "Accessible Info", "Opened xml file", NotificationType.INFORMATION)
-
-            // Get the PSI file for the XML file
-            val psiFile = PsiManager.getInstance(source.project)
-                .findFile(file)
-
-            // Get tags of the PSI file
-            val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
-
-            for (tag in tags) {
-                val checkRes = xmlAccessibilityChecksService.performChecks(tag)
-
-                // debugging fields
-//                val locationData = tag.metaData
-//
-//                val editors = source.getEditors(file)
-//                val selectedEditor = source.getSelectedEditor(file)
-//                val allEditors = source.getAllEditors(file)
-//                val ed = source.selectedTextEditor
-
-                source.selectedTextEditor?.document?.addDocumentListener(object : DocumentListener {
-
-                    override fun documentChanged(event: DocumentEvent) {
-
-                    }
-
-                    override fun bulkUpdateFinished(document: Document) {
-                        notificationManager.showNotification(project, "Accessible Info", "bulkUpdateFinished event, newFragment $document", NotificationType.INFORMATION)
-                    }
-                })
-
-                logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tResults: ${checkRes.size} $checkRes")
-                if (checkRes.isNotEmpty())
-                    openedFileListenerRegistry[file]
-                        ?.showMessage(tag, checkRes, source.selectedTextEditor)
-            }
+            onXmlFileOpened(fileEditorManager, file)
         } else if (file.fileType == JavaFileType.INSTANCE) {
-            notificationManager.showNotification(project, "Accessible Info", "Opened java file", NotificationType.INFORMATION)
-
+            notificationManager.showNotification(
+                project,
+                "Accessible Info",
+                "Opened java file",
+                NotificationType.INFORMATION
+            )
 
 
         } else if (file.fileType == KotlinFileType.INSTANCE) {
-            notificationManager.showNotification(project, "Accessible Info", "Opened kotlin file", NotificationType.INFORMATION)
+            notificationManager.showNotification(
+                project,
+                "Accessible Info",
+                "Opened kotlin file",
+                NotificationType.INFORMATION
+            )
 
         } else {
             val unknownFileType = file.fileType
@@ -92,41 +101,94 @@ class OpenedFileListener(
         }
     }
 
-    private fun registerPresenterForFile(file: VirtualFile, openedFileListenerRegistry: OpenedFileListenerRegistry) {
+    private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Opened xml file",
+            NotificationType.INFORMATION
+        )
+
+        registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
+        performXmlFileCheck(file, source)
+    }
+
+    private fun performXmlFileCheck(file: VirtualFile, source: FileEditorManager) {
+        openedFileListenerRegistry[file]?.presenter?.clear()
+        // Get the PSI file for the XML file
+        val psiFile = PsiManager.getInstance(source.project)
+            .findFile(file)
+
+        // Get tags of the PSI file
+        val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
+
+        for (tag in tags) {
+            val checkRes = xmlAccessibilityChecksService.performChecks(tag)
+
+            logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
+            if (checkRes.isNotEmpty())
+                openedFileListenerRegistry[file]
+                    ?.presenter?.showMessage(tag, checkRes, source.selectedTextEditor)
+        }
+    }
+
+    private fun registerPresenterAndListenersForFile(
+        file: VirtualFile,
+        source: FileEditorManager,
+        openedFileListenerRegistry: OpenedFileListenerRegistry
+    ) {
+        val docChangeListener = object : DocumentListener {
+            override fun documentChanged(event: DocumentEvent) {
+                // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
+                // если пришел запрос на новый а предыдущий ещё выполняется
+                performXmlFileCheck(file, source)
+            }
+
+            override fun bulkUpdateFinished(document: Document) {
+
+            }
+        }
+
         openedFileListenerRegistry.register(
             file,
-            Configuration().openedFilesPresenter(project, file)
+            OpenedFileListenerRegistry.Managers(
+                presenter = Configuration().openedFilesPresenter(project, file),
+                documentListener = docChangeListener
+            )
         )
+
+        source.selectedTextEditor?.document?.addDocumentListener(docChangeListener)
     }
 
-    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        notificationManager.showNotification(project, "Accessible Info", "Closed file: ${file.name}", NotificationType.INFORMATION)
-
-        openedFileListenerRegistry.unregister(file)
-    }
-
-    override fun selectionChanged(event: FileEditorManagerEvent) {
-        // todo: тут нужно убирать слушателя изменений последнего открытого файла
-        super.selectionChanged(event)
-    }
 
     private class OpenedFileListenerRegistry {
-        private val registry = hashMapOf<String, OpenedFilePresenterImpl>()
+        private val registry = hashMapOf<String, Managers>()
 
-        fun register(file: VirtualFile, openedFilePresenter: OpenedFilePresenterImpl) {
-            registry[getFileKey(file)] = openedFilePresenter
+        fun register(file: VirtualFile, managers: Managers) {
+            registry[getFileKey(file)] = managers
         }
 
         fun unregister(file: VirtualFile) {
             registry.remove(getFileKey(file))
         }
 
-        operator fun get(file: VirtualFile): OpenedFilePresenterImpl? {
+        operator fun get(file: VirtualFile): Managers? {
             return registry[getFileKey(file)]
         }
 
         private fun getFileKey(file: VirtualFile): String {
             return file.path
+        }
+
+        data class Managers(
+            val presenter: OpenedFilePresenter,
+            val documentListener: DocumentListener,
+        )
+    }
+
+    override fun onSettingsChangeUpdate() {
+        for (file in visibleFiles) {
+            performChecks(file, fileEditorManager)
         }
     }
 
