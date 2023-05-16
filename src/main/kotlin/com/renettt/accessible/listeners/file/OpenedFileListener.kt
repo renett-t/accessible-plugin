@@ -11,9 +11,7 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.xml.XmlTag
+import com.renettt.accessible.checks.psi.kotlin.service.ComposeAccessibilityChecksService
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
 import com.renettt.accessible.presenter.OpenedFilePresenter
@@ -33,6 +31,8 @@ class OpenedFileListener(
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
+
+    private lateinit var composeAccessibilityChecksService: ComposeAccessibilityChecksService
 
     private val openedFileListenerRegistry = OpenedFileListenerRegistry()
 
@@ -117,26 +117,8 @@ class OpenedFileListener(
         )
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
-        performXmlFileCheck(file, source)
-    }
-
-    private fun performXmlFileCheck(file: VirtualFile, source: FileEditorManager) {
         openedFileListenerRegistry[file]?.presenter?.clear()
-        // Get the PSI file for the XML file
-        val psiFile = PsiManager.getInstance(source.project)
-            .findFile(file)
-
-        // Get tags of the PSI file
-        val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
-
-        for (tag in tags) {
-            val checkRes = xmlAccessibilityChecksService.performChecks(tag)
-
-            logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
-            if (checkRes.isNotEmpty())
-                openedFileListenerRegistry[file]
-                    ?.presenter?.showMessage(tag, checkRes, source.selectedTextEditor)
-        }
+        XmlFileChecks.performXmlFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun registerPresenterAndListenersForFile(
