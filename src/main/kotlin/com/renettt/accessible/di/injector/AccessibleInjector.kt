@@ -15,7 +15,7 @@ import com.renettt.accessible.notifications.impl.AccessibleNotificationManagerIm
 import com.renettt.accessible.presenter.impl.OpenedFilePresenterImpl
 import com.renettt.accessible.settings.AccessibleSettingsManager
 import com.renettt.accessible.settings.AccessibleState
-import com.renettt.accessible.settings.SettingsService
+import com.renettt.accessible.settings.AccessibleSettingsService
 import com.renettt.accessible.utils.event.ObservableEvent
 
 interface AccessibleInjector {
@@ -93,7 +93,7 @@ class AccessibleInjectorImpl : AccessibleInjector {
     }
 
     override fun accessibleState(project: Project): AccessibleState {
-        return SettingsService.getInstance(project).state
+        return AccessibleSettingsService.getInstance(project).state
     }
 
     override val settingsChangeEvent: ObservableEvent<AccessibleSettingsManager.SettingsChangeEventHandler, AccessibleInjector, Unit> by lazy {

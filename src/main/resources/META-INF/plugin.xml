@@ -16,7 +16,7 @@
 
         <projectConfigurable instance="com.renettt.accessible.settings.AccessibleSettingsManager"
                              displayName="AccessibleSettings"/>
-        <projectService serviceImplementation="com.renettt.accessible.settings.SettingsService"/>
+        <projectService serviceImplementation="com.renettt.accessible.settings.AccessibleSettingsService"/>
 
         <toolWindow factoryClass="com.renettt.accessible.utils.notused.toolWindow.MyToolWindowFactory" id="MyToolWindow"/>
 
