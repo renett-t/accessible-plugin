@@ -33,8 +33,10 @@ class OpenedFileListener(
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
-
     private lateinit var composeAccessibilityChecksService: ComposeAccessibilityChecksService
+
+    private val xmlFileChecks = Configuration().xmlFileChecks
+    private val kotlinFileChecks = Configuration().kotlinFileChecks
 
     private val openedFileListenerRegistry = OpenedFileListenerRegistry()
 
@@ -107,7 +109,7 @@ class OpenedFileListener(
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
         openedFileListenerRegistry[file]?.presenter?.clear()
-        KotlinFileChecks().performFileCheck(file, source, logger, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
+        kotlinFileChecks.performFileCheck(file, source, logger, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -120,7 +122,7 @@ class OpenedFileListener(
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
         openedFileListenerRegistry[file]?.presenter?.clear()
-        XmlFileChecks.performXmlFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
+        xmlFileChecks.performXmlFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun registerPresenterAndListenersForFile(

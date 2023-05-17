@@ -5,6 +5,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksLoader
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.files.*
+import com.renettt.accessible.listeners.checks.KotlinFileChecks
+import com.renettt.accessible.listeners.checks.XmlFileChecks
 import com.renettt.accessible.logging.AccessibleLogger
 import com.renettt.accessible.logging.impl.AccessibleLoggerImpl
 import com.renettt.accessible.notifications.AccessibleNotificationManager
@@ -21,6 +23,9 @@ interface AccessibleInjector {
     val project: Project
     fun loadProject(project: Project)
     fun setReady(ready: Boolean)
+
+    val xmlFileChecks: XmlFileChecks
+    val kotlinFileChecks: KotlinFileChecks
 
     val xmlAccessibilityChecksLoader: XmlAccessibilityChecksLoader
 
@@ -57,6 +62,13 @@ class AccessibleInjectorImpl : AccessibleInjector {
 
     override fun setReady(ready: Boolean) {
         this.ready = ready
+    }
+
+    override val xmlFileChecks: XmlFileChecks by lazy {
+        XmlFileChecks()
+    }
+    override val kotlinFileChecks: KotlinFileChecks by lazy {
+        KotlinFileChecks()
     }
 
     override val xmlAccessibilityChecksLoader: XmlAccessibilityChecksLoader by lazy {
