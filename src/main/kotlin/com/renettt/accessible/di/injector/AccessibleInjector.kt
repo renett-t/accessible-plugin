@@ -4,10 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksLoader
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
-import com.renettt.accessible.files.AnalyzeAllFilesManager
-import com.renettt.accessible.files.AnalyzeAllFilesManagerImpl
-import com.renettt.accessible.files.AnalyzeAllFilesPresenter
-import com.renettt.accessible.files.AnalyzeAllFilesPresenterImpl
+import com.renettt.accessible.files.*
 import com.renettt.accessible.logging.AccessibleLogger
 import com.renettt.accessible.logging.impl.AccessibleLoggerImpl
 import com.renettt.accessible.notifications.AccessibleNotificationManager
@@ -40,6 +37,8 @@ interface AccessibleInjector {
     fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl
 
     // analyze all files
+    val filesManager: FilesManager
+
     val analyzeAllFilesManager: AnalyzeAllFilesManager
 
     val analyzeAllFilesPresenter: AnalyzeAllFilesPresenter
@@ -99,9 +98,14 @@ class AccessibleInjectorImpl : AccessibleInjector {
         return OpenedFilePresenterImpl(project, file, notificationManager)
     }
 
+    override val filesManager: FilesManager by lazy {
+        FilesManagerImpl()
+    }
+
     override val analyzeAllFilesManager: AnalyzeAllFilesManager by lazy {
         AnalyzeAllFilesManagerImpl()
     }
+
     override val analyzeAllFilesPresenter: AnalyzeAllFilesPresenter by lazy {
         AnalyzeAllFilesPresenterImpl()
     }
