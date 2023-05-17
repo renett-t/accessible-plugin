@@ -1,4 +1,4 @@
-package com.renettt.accessible.listeners.file
+package com.renettt.accessible.listeners.checks
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager
@@ -17,7 +17,9 @@ import com.renettt.accessible.checks.psi.kotlin.ComposeContentDescriptionCheck
 //import org.jetbrains.kotlin.com.intellij.psi.PsiRecursiveElementVisitor
 
 class KotlinFileChecks {
+
     private lateinit var ktElement: KtElement
+
     fun performFileCheck(
         file: VirtualFile,
         source: FileEditorManager,

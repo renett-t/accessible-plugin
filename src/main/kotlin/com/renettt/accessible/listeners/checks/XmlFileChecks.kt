@@ -1,4 +1,4 @@
-package com.renettt.accessible.listeners.file
+package com.renettt.accessible.listeners.checks
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileEditorManager

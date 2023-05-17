@@ -14,6 +14,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.renettt.accessible.checks.psi.kotlin.service.ComposeAccessibilityChecksService
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
+import com.renettt.accessible.listeners.checks.KotlinFileChecks
+import com.renettt.accessible.listeners.checks.XmlFileChecks
 import com.renettt.accessible.presenter.OpenedFilePresenter
 import com.renettt.accessible.settings.AccessibleSettingsManager
 import org.jetbrains.kotlin.idea.KotlinFileType
