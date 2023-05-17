@@ -109,7 +109,7 @@ class OpenedFileListener(
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
         openedFileListenerRegistry[file]?.presenter?.clear()
-        kotlinFileChecks.performFileCheck(file, source, logger, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
+        kotlinFileChecks.performFileCheck(file, source, logger, null, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -122,7 +122,7 @@ class OpenedFileListener(
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
         openedFileListenerRegistry[file]?.presenter?.clear()
-        xmlFileChecks.performXmlFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
+        xmlFileChecks.performFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun registerPresenterAndListenersForFile(
