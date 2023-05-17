@@ -7,6 +7,7 @@ import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksServi
 import com.renettt.accessible.files.*
 import com.renettt.accessible.listeners.checks.KotlinFileChecks
 import com.renettt.accessible.listeners.checks.XmlFileChecks
+import com.renettt.accessible.listeners.file.OpenedFileListenerRegistry
 import com.renettt.accessible.logging.AccessibleLogger
 import com.renettt.accessible.logging.impl.AccessibleLoggerImpl
 import com.renettt.accessible.notifications.AccessibleNotificationManager
@@ -38,6 +39,8 @@ interface AccessibleInjector {
     fun accessibleState(project: Project): AccessibleState
 
     val settingsChangeEvent: ObservableEvent<AccessibleSettingsManager.SettingsChangeEventHandler, AccessibleInjector, Unit>
+
+    val openedFileListenerRegistry: OpenedFileListenerRegistry
 
     fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl
 
@@ -104,6 +107,9 @@ class AccessibleInjectorImpl : AccessibleInjector {
                 handler.onSettingsChangeUpdate()
             }
         }
+    }
+    override val openedFileListenerRegistry: OpenedFileListenerRegistry by lazy {
+        OpenedFileListenerRegistry()
     }
 
     override fun openedFilesPresenter(project: Project, file: VirtualFile): OpenedFilePresenterImpl {

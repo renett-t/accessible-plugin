@@ -38,7 +38,7 @@ class OpenedFileListener(
     private val xmlFileChecks = Configuration().xmlFileChecks
     private val kotlinFileChecks = Configuration().kotlinFileChecks
 
-    private val openedFileListenerRegistry = OpenedFileListenerRegistry()
+    private val openedFileListenerRegistry = Configuration().openedFileListenerRegistry
 
     private val notificationManager = Configuration().notificationManager
 
@@ -144,7 +144,7 @@ class OpenedFileListener(
 
         openedFileListenerRegistry.register(
             file,
-            OpenedFileListenerRegistry.Managers(
+            Managers(
                 presenter = Configuration().openedFilesPresenter(project, file),
                 documentListener = docChangeListener
             )
@@ -153,31 +153,6 @@ class OpenedFileListener(
         source.selectedTextEditor?.document?.addDocumentListener(docChangeListener)
     }
 
-
-    private class OpenedFileListenerRegistry {
-        private val registry = hashMapOf<String, Managers>()
-
-        fun register(file: VirtualFile, managers: Managers) {
-            registry[getFileKey(file)] = managers
-        }
-
-        fun unregister(file: VirtualFile) {
-            registry.remove(getFileKey(file))
-        }
-
-        operator fun get(file: VirtualFile): Managers? {
-            return registry[getFileKey(file)]
-        }
-
-        private fun getFileKey(file: VirtualFile): String {
-            return file.path
-        }
-
-        data class Managers(
-            val presenter: OpenedFilePresenter,
-            val documentListener: DocumentListener,
-        )
-    }
 
     override fun onSettingsChangeUpdate() {
         for (file in visibleFiles) {
