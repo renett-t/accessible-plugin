@@ -4,6 +4,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiElement
 import com.renettt.accessible.checks.AccessibilityCheck
 import com.renettt.accessible.checks.AccessibilityCheckResult
+import org.jetbrains.kotlin.psi.KtElement
 
 interface OpenedFilePresenter {
 
@@ -15,10 +16,11 @@ interface OpenedFilePresenter {
 
     fun clear()
 
-//    fun showMessage(
-//        tag: XmlTag,
-//        checkResultsMap: Map<AccessibilityCheck<XmlElement>, List<AccessibilityCheckResult>>,
-//        editor: Editor?,
-//    )
+    fun showMessage(
+        lineNumber: Int,
+        ktElement: KtElement?,
+        checkResultsMap: Map<AccessibilityCheck<KtElement>, List<AccessibilityCheckResult>>,
+        editor: Editor?,
+    )
 
 }

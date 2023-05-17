@@ -19,6 +19,7 @@ import com.renettt.accessible.presenter.AccessibilityMessageAnnotationDialog
 import com.renettt.accessible.presenter.FileAccessibilityMessage
 import com.renettt.accessible.presenter.FileAccessibilityMessagesBlock
 import com.renettt.accessible.presenter.OpenUrlAction
+import org.jetbrains.kotlin.psi.KtElement
 import java.awt.*
 import java.awt.Cursor.HAND_CURSOR
 import javax.swing.*
@@ -54,6 +55,25 @@ class OpenedFilePresenterImpl(
         }
     }
 
+    override fun showMessage(
+        lineNumber: Int,
+        ktElement: KtElement?,
+        checkResultsMap: Map<AccessibilityCheck<KtElement>, List<AccessibilityCheckResult>>,
+        editor: Editor?
+    ) {
+        if (checkResultsMap.isEmpty())
+            return
+
+        if (editor != null) {
+
+            val editorPosition: Point = getDialogPositionInEditor(editor, lineNumber)
+
+            createMessages<KtElement>(ktElement, checkResultsMap, lineNumber, editorPosition)
+            prepareGutter(editor, checkResultsMap)
+        }
+    }
+
+
     override fun clear() {
         messagesToShow.clear()
         shownMessageAnnotationDialogs.clear()
@@ -68,7 +88,7 @@ class OpenedFilePresenterImpl(
         val elementStartOffset = element.textOffset
         val lineNumber = document.getLineNumber(elementStartOffset)
 
-        val editorPosition: Point = getDialogPositionInEditor(editor, element, lineNumber)
+        val editorPosition: Point = getDialogPositionInEditor(editor, lineNumber)
 
         createMessages(element, checkResultsMapForElement, lineNumber, editorPosition)
 
@@ -76,8 +96,8 @@ class OpenedFilePresenterImpl(
         prepareGutter(editor, checkResultsMapForElement)
     }
 
-    private fun <Element : PsiElement> createMessages(
-        element: Element,
+    private fun <Element> createMessages(
+        element: Element?,
         checkResultsMapForElement: Map<AccessibilityCheck<Element>, List<AccessibilityCheckResult>>,
         lineNumber: Int,
         editorPosition: Point
@@ -93,7 +113,7 @@ class OpenedFilePresenterImpl(
      * Возвращает точку в Editor для lineNumber.
      * Относительная для компонента Editor, НЕ абсолютная для экрана
      */
-    private fun getDialogPositionInEditor(editor: Editor, element: PsiElement, lineNumber: Int): Point {
+    private fun getDialogPositionInEditor(editor: Editor, lineNumber: Int): Point {
         // Get the start and end offsets for the given line number
         val lineStartOffset = editor.document.getLineStartOffset(lineNumber)
         val lineEndOffset = editor.document.getLineEndOffset(lineNumber)
@@ -110,9 +130,9 @@ class OpenedFilePresenterImpl(
     }
 
 
-    private fun <Element : PsiElement> createAccessibilityMessagesBlock(
+    private fun <Element> createAccessibilityMessagesBlock(
         previousData: FileAccessibilityMessagesBlock?,
-        element: Element,
+        element: Element?,
         check: AccessibilityCheck<Element>,
         results: List<AccessibilityCheckResult>,
         editorPosition: Point,
@@ -125,7 +145,7 @@ class OpenedFilePresenterImpl(
         for (result in results) {
             newMessages.add(
                 FileAccessibilityMessage(
-                    forWhom = element,
+                    forWhom = null,
                     message = result.msg,
                     metadata = check.metaData,
                 )
@@ -203,7 +223,7 @@ class OpenedFilePresenterImpl(
 //            .showHint(createJComponent(tag), RelativePoint.fromScreen(editorPosition), flags, timeOut, onHintHidden)
     }
 
-    private fun <Element : PsiElement> prepareGutter(
+    private fun <Element> prepareGutter(
         editor: Editor,
         checkResultsMapForElement: Map<AccessibilityCheck<Element>, List<AccessibilityCheckResult>>
     ) {
