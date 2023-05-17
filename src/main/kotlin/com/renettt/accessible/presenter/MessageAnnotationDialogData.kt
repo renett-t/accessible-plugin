@@ -18,7 +18,7 @@ internal data class FileAccessibilityMessagesBlock(
 }
 
 internal data class FileAccessibilityMessage(
-    val forWhom: PsiElement,
+    val forWhom: PsiElement?,
     val message: String,
     val metadata: AccessibilityCheckMetaData,
 )

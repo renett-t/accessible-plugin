@@ -11,11 +11,11 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.PsiManager
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.xml.XmlTag
+import com.renettt.accessible.checks.psi.kotlin.service.ComposeAccessibilityChecksService
 import com.renettt.accessible.checks.psi.xml.service.XmlAccessibilityChecksService
 import com.renettt.accessible.configure.Configuration
+import com.renettt.accessible.listeners.checks.KotlinFileChecks
+import com.renettt.accessible.listeners.checks.XmlFileChecks
 import com.renettt.accessible.presenter.OpenedFilePresenter
 import com.renettt.accessible.settings.AccessibleSettingsManager
 import org.jetbrains.kotlin.idea.KotlinFileType
@@ -33,6 +33,8 @@ class OpenedFileListener(
 
     private val xmlAccessibilityChecksService: XmlAccessibilityChecksService =
         Configuration().psiXmlAccessibilityChecksService
+
+    private lateinit var composeAccessibilityChecksService: ComposeAccessibilityChecksService
 
     private val openedFileListenerRegistry = OpenedFileListenerRegistry()
 
@@ -87,18 +89,25 @@ class OpenedFileListener(
             )
 
 
-        } else if (file.fileType == KotlinFileType.INSTANCE) {
-            notificationManager.showNotification(
-                project,
-                "Accessible Info",
-                "Opened kotlin file",
-                NotificationType.INFORMATION
-            )
-
+        } else if (file.fileType.defaultExtension == KotlinFileType.EXTENSION) {
+            onKotlinFileOpened(fileEditorManager, file)
         } else {
             val unknownFileType = file.fileType
             val unknownFileTypeN = file.fileType.javaClass.canonicalName
         }
+    }
+
+    private fun onKotlinFileOpened(source: FileEditorManager, file: VirtualFile) {
+        notificationManager.showNotification(
+            project,
+            "Accessible Info",
+            "Opened kotlin file",
+            NotificationType.INFORMATION
+        )
+
+        registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
+        openedFileListenerRegistry[file]?.presenter?.clear()
+        KotlinFileChecks().performFileCheck(file, source, logger, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun onXmlFileOpened(source: FileEditorManager, file: VirtualFile) {
@@ -110,26 +119,8 @@ class OpenedFileListener(
         )
 
         registerPresenterAndListenersForFile(file, source, openedFileListenerRegistry)
-        performXmlFileCheck(file, source)
-    }
-
-    private fun performXmlFileCheck(file: VirtualFile, source: FileEditorManager) {
         openedFileListenerRegistry[file]?.presenter?.clear()
-        // Get the PSI file for the XML file
-        val psiFile = PsiManager.getInstance(source.project)
-            .findFile(file)
-
-        // Get tags of the PSI file
-        val tags = PsiTreeUtil.findChildrenOfType(psiFile, XmlTag::class.java)
-
-        for (tag in tags) {
-            val checkRes = xmlAccessibilityChecksService.performChecks(tag)
-
-            logger.log("Performed checks. For: '${tag.name}' in file: '${file.name}'. \n\tChecks: ${checkRes.size}, results: ${checkRes.values.size} $checkRes")
-            if (checkRes.isNotEmpty())
-                openedFileListenerRegistry[file]
-                    ?.presenter?.showMessage(tag, checkRes, source.selectedTextEditor)
-        }
+        XmlFileChecks.performXmlFileCheck(file, source, logger, xmlAccessibilityChecksService, openedFileListenerRegistry[file]?.presenter, source.selectedTextEditor)
     }
 
     private fun registerPresenterAndListenersForFile(
@@ -141,7 +132,7 @@ class OpenedFileListener(
             override fun documentChanged(event: DocumentEvent) {
                 // fixme: забаговано. Нужно добавить структуру которая будет отменять предыдущий чек
                 // если пришел запрос на новый а предыдущий ещё выполняется
-                performXmlFileCheck(file, source)
+                performChecks(file, source)
             }
 
             override fun bulkUpdateFinished(document: Document) {

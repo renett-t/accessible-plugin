@@ -38,18 +38,8 @@ kotlin {
 }
 
 dependencies {
-    compileOnly("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.70")
+    implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:1.3.70")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.70")
-
-    // these dependencies needed by ide-core
-//    runtimeOnly("org.jetbrains.intellij.deps.fastutil:intellij-deps-fastutil:8.5.2-6")
-//    runtimeOnly("org.jetbrains.intellij.deps.batik:batik-transcoder:1.16.0-35")
-//    runtimeOnly("org.jetbrains.intellij.deps:java-compatibility:1.0.1")
-//    runtimeOnly("com.h2database:h2-mvstore:2.1.219-jb.4")
-//    runtimeOnly("com.jetbrains:jbr-api:17.1.5.0")
-//    runtimeOnly("org.jetbrains.intellij.deps:trove4j:1.0.20221201")
-
-//    implementation("com.jetbrains.intellij.platform:ide-core:231.8770.71")
 
 }
 
