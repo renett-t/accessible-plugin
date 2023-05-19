@@ -18,6 +18,7 @@ class ComposeContentDescriptionCheck : ComposeAccessibilityCheck {
     }
 
     override fun availableFor(element: KtElement): Boolean {
+        // хе-хе
         TODO("Not yet implemented")
     }
 
