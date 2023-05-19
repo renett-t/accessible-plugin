@@ -218,7 +218,7 @@ class OpenedFilePresenterImpl(
         val onHintHidden = Runnable {
             println("   On Hint Hidden")
         }
-
+        // fixme: add hints
 //        HintManager.getInstance()
 //            .showHint(createJComponent(tag), RelativePoint.fromScreen(editorPosition), flags, timeOut, onHintHidden)
     }
