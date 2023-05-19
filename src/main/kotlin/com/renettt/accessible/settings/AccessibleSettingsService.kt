@@ -9,7 +9,7 @@ import com.intellij.openapi.project.Project
         Storage(value = "accessibleConfiguration.xml")
     ]
 )
-class SettingsService : PersistentStateComponent<AccessibleState> {
+class AccessibleSettingsService : PersistentStateComponent<AccessibleState> {
 
     private var accessibleState: AccessibleState = AccessibleState()
 
@@ -20,7 +20,7 @@ class SettingsService : PersistentStateComponent<AccessibleState> {
     }
 
     companion object {
-        fun getInstance(project: Project): SettingsService =
+        fun getInstance(project: Project): AccessibleSettingsService =
             project.service()
     }
 }

@@ -2,7 +2,6 @@ package com.renettt.accessible.settings
 
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
-import com.intellij.ui.layout.panel
 import com.renettt.accessible.BundleProperties
 import com.renettt.accessible.configure.Configuration
 import javax.swing.*
@@ -15,55 +14,30 @@ class AccessibleSettingsManager(
 ) : Configurable, DocumentListener {
 
     private val state: AccessibleState by lazy {
-        SettingsService.getInstance(project).state
+        AccessibleSettingsService.getInstance(project).state
     }
+
+    private val accessibleSettingsPresenter: AccessibleSettingsPresenter = AccessibleSettingsPresenter()
 
     private var modified = false
-
-    private val defaultTouchTargetSize: JTextField = JTextField().apply {
-        isEditable = false
-    }
-    private val defaultTouchTargetSizeOverride: JTextField = JTextField().apply {
-        isEditable = true
-    }
-
-    private val panel: JPanel = panel {
-        row(BundleProperties.message("settings.defaultTouchTargetSize")) {
-            defaultTouchTargetSize()
-        }
-        row(BundleProperties.message("settings.overrideTouchTargetSize")) {
-            defaultTouchTargetSizeOverride()
-        }
-
-    }
 
     override fun isModified(): Boolean = modified
 
     override fun getDisplayName(): String = BundleProperties.message("settings.name")
 
     override fun apply() {
-        state.minTouchTargetSizeOverrideForAll = defaultTouchTargetSizeOverride.text.toIntOrNull()
-            ?: state.minTouchTargetSize
+        accessibleSettingsPresenter.getChangedState(state)
 
-        SettingsService.getInstance(project)
+        AccessibleSettingsService.getInstance(project)
             .loadState(state)
+
         modified = false
 
         Configuration().settingsChangeEvent(Unit)
     }
 
     override fun createComponent(): JComponent {
-        defaultTouchTargetSize.apply {
-            text = state.minTouchTargetSize.toString() + "dp"
-            document.addDocumentListener(this@AccessibleSettingsManager)
-        }
-
-        defaultTouchTargetSize.apply {
-            text = state.minTouchTargetSizeOverrideForAll.toString()
-            document.addDocumentListener(this@AccessibleSettingsManager)
-        }
-
-        return panel
+        return accessibleSettingsPresenter.createComponent(state, this)
     }
 
     override fun changedUpdate(e: DocumentEvent?) {

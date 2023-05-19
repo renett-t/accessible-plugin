@@ -13,17 +13,19 @@ import com.renettt.accessible.checks.AccessibilityCheckResult
 import com.renettt.accessible.checks.AccessibilityCheckResultType
 import com.renettt.accessible.checks.psi.kotlin.ComposeClickTargetSizeCheck
 import com.renettt.accessible.checks.psi.kotlin.ComposeContentDescriptionCheck
+import com.renettt.accessible.checks.psi.kotlin.service.ComposeAccessibilityChecksService
 
 //import org.jetbrains.kotlin.com.intellij.psi.PsiRecursiveElementVisitor
 
-class KotlinFileChecks {
+class KotlinFileChecks : AbsFileChecksManager<ComposeAccessibilityChecksService> {
 
     private lateinit var ktElement: KtElement
 
-    fun performFileCheck(
+    override fun performFileCheck(
         file: VirtualFile,
         source: FileEditorManager,
         logger: AccessibleLogger,
+        accessibilityChecksService: ComposeAccessibilityChecksService?,
         presenter: OpenedFilePresenter?,
         selectedTextEditor: Editor?
     ) {
